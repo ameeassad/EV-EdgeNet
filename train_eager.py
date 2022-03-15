@@ -124,14 +124,15 @@ if __name__ == "__main__":
     restore_state(restore_model, name_best_model)
     get_params(model)
 
-    train(loader=loader, model=model, epochs=epochs, batch_size=batch_size, augmenter='segmentation', lr=learning_rate,
-          init_lr=lr, saver=saver_model, variables_to_optimize=variables_to_optimize, name_best_model=name_best_model,
-          evaluation=True, preprocess_mode=None)
+    if epochs > 0:
+        train(loader=loader, model=model, epochs=epochs, batch_size=batch_size, augmenter='segmentation', lr=learning_rate,
+            init_lr=lr, saver=saver_model, variables_to_optimize=variables_to_optimize, name_best_model=name_best_model,
+            evaluation=True, preprocess_mode=None)
 
     # Test best model
     print('Testing model')
     test_acc, test_miou = get_metrics(loader, model, loader.n_classes, train=False, flip_inference=True, scales=[1, 0.75, 1.5],
-                                      write_images=False, preprocess_mode=None)
+                                      write_images=True, preprocess_mode=None)
     print('Test accuracy: ' + str(test_acc.numpy()))
     print('Test miou: ' + str(test_miou))
 

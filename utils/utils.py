@@ -44,7 +44,7 @@ def convert_to_tensors(list_to_convert):
 # restores a checkpoint model
 def restore_state(saver, checkpoint):
     try:
-        saver.restore(checkpoint)
+        saver.restore(None, checkpoint)
         print('Model loaded')
     except Exception as e:
         print('Model not loaded: ' + str(e))
@@ -98,11 +98,11 @@ def inference(model, batch_images, n_classes, flip_inference=True, scales=[1], p
 
     for scale in scales:
         # scale the image
-        x_scaled = tf.image.resize_images(x, (x.shape[1].value * scale, x.shape[2].value * scale),
+        x_scaled = tf.compat.v1.image.resize_images(x, (int(x.shape[1] * scale), int(x.shape[2] * scale)),
                                           method=tf.image.ResizeMethod.BILINEAR, align_corners=True)
         y_scaled = model(x_scaled, training=False)
         #  rescale the output
-        y_scaled = tf.image.resize_images(y_scaled, (x.shape[1].value, x.shape[2]),
+        y_scaled = tf.compat.v1.image.resize_images(y_scaled, (x.shape[1], x.shape[2]),
                                           method=tf.image.ResizeMethod.BILINEAR, align_corners=True)
         # get scores
         y_scaled = tf.nn.softmax(y_scaled)
@@ -111,7 +111,7 @@ def inference(model, batch_images, n_classes, flip_inference=True, scales=[1], p
             # calculates flipped scores
             y_flipped_ = tf.image.flip_left_right(model(tf.image.flip_left_right(x_scaled), training=False))
             # resize to rela scale
-            y_flipped_ = tf.image.resize_images(y_flipped_, (x.shape[1].value, x.shape[2]),
+            y_flipped_ = tf.compat.v1.image.resize_images(y_flipped_, (x.shape[1], x.shape[2]),
                                                 method=tf.image.ResizeMethod.BILINEAR, align_corners=True)
             # get scores
             y_flipped_score = tf.nn.softmax(y_flipped_)
@@ -145,6 +145,7 @@ def get_metrics(loader, model, n_classes, train=True, flip_inference=False, scal
 
         # generate images
         if write_images:
+            print('Writing images')
             generate_image(y_[0,:,:,:], 'images_out', loader.dataFolderPath, loader, train)
 
         # Rephape
