@@ -339,13 +339,13 @@ class RefineNet(tf.keras.Model):
 
 
 def upsampling(inputs, scale):
-    return tf.image.resize_bilinear(inputs, size=[tf.shape(inputs)[1] * scale, tf.shape(inputs)[2] * scale],
+    return tf.compat.v1.image.resize_bilinear(inputs, size=[tf.shape(inputs)[1] * scale, tf.shape(inputs)[2] * scale],
                                     align_corners=True)
 
 
 def reshape_into(inputs, input_to_copy):
-    return tf.image.resize_bilinear(inputs, [input_to_copy.get_shape()[1].value,
-                                             input_to_copy.get_shape()[2].value], align_corners=True)
+    return tf.compat.v1.image.resize_bilinear(inputs, [input_to_copy.get_shape()[1],
+                                             input_to_copy.get_shape()[2]], align_corners=True)
 
 
 # convolution
@@ -491,9 +491,9 @@ class ASPP(tf.keras.Model):
 
     def call(self, inputs, training=None, operation='concat'):
         feature_map_size = tf.shape(inputs)
-        image_features = tf.reduce_mean(inputs, [1, 2], keep_dims=True)
+        image_features = tf.reduce_mean(inputs, [1, 2], keepdims=True)
         image_features = self.conv1(image_features, training=training)
-        image_features = tf.image.resize_bilinear(image_features, (feature_map_size[1], feature_map_size[2]))
+        image_features = tf.compat.v1.image.resize_bilinear(image_features, (feature_map_size[1], feature_map_size[2]))
         x1 = self.conv2(inputs, training=training)
         x2 = self.conv3(inputs, training=training)
         x3 = self.conv4(inputs, training=training)
@@ -521,9 +521,9 @@ class ASPP_2(tf.keras.Model):
 
     def call(self, inputs, training=None, operation='concat'):
         feature_map_size = tf.shape(inputs)
-        image_features = tf.reduce_mean(inputs, [1, 2], keep_dims=True)
+        image_features = tf.reduce_mean(inputs, [1, 2], keepdims=True)
         image_features = self.conv1(image_features, training=training)
-        image_features = tf.image.resize_bilinear(image_features, (feature_map_size[1], feature_map_size[2]))
+        image_features = tf.compat.v1.image.resize_bilinear(image_features, (feature_map_size[1], feature_map_size[2]))
         x1 = self.conv2(inputs, training=training)
         x2 = self.conv3(inputs, training=training)
         x3 = self.conv4(inputs, training=training)

@@ -15,7 +15,7 @@ np.random.seed(7)
 
 
 # Trains the model for certains epochs on a dataset
-def train(loader, model, epochs=5, batch_size=2, show_loss=False, augmenter=None, lr=None, init_lr=2e-4,
+def train(loader, model, epochs=5, batch_size=2, show_loss=True, augmenter=None, lr=None, init_lr=2e-4,
           saver=None, variables_to_optimize=None, evaluation=True, name_best_model = 'weights/best', preprocess_mode=None):
     training_samples = len(loader.image_train_list)
     steps_per_epoch = (training_samples / batch_size) + 1
@@ -25,7 +25,6 @@ def train(loader, model, epochs=5, batch_size=2, show_loss=False, augmenter=None
         lr_decay(lr, init_lr, 1e-9, epoch, epochs - 1)  # compute the new lr
         print('epoch: ' + str(epoch) + '. Learning rate: ' + str(lr.numpy()))
 
-        print(steps_per_epoch)
         for step in range(int(steps_per_epoch)):  # for every batch
             with tf.GradientTape() as g:
                 # get batch
@@ -36,8 +35,8 @@ def train(loader, model, epochs=5, batch_size=2, show_loss=False, augmenter=None
 
                 y_, aux_y_ = model(x, training=True, aux_loss=True)  # get output of the model
 
-                loss = tf.losses.softmax_cross_entropy(y, y_, weights=mask)  # compute loss
-                loss_aux = tf.losses.softmax_cross_entropy(y, aux_y_, weights=mask)  # compute loss
+                loss = tf.compat.v1.losses.softmax_cross_entropy(y, y_, weights=mask)  # compute loss
+                loss_aux = tf.compat.v1.losses.softmax_cross_entropy(y, aux_y_, weights=mask)  # compute loss
                 loss = 1*loss + 0.8*loss_aux
                 if show_loss: print('Training loss: ' + str(loss.numpy()))
 

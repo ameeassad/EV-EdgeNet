@@ -137,7 +137,7 @@ def get_metrics(loader, model, n_classes, train=True, flip_inference=False, scal
     else:
         samples = len(loader.image_test_list)
 
-    for step in xrange(samples):  # for every batch
+    for step in range(samples):  # for every batch
         x, y, mask = loader.get_batch(size=1, train=train, augmenter=False)
 
         [y] = convert_to_tensors([y])
