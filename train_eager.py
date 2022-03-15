@@ -1,6 +1,5 @@
 import numpy as np
 import tensorflow as tf
-import tensorflow.contrib.eager as tfe
 import os
 import nets.Network as Segception
 import utils.Loader as Loader
@@ -8,8 +7,10 @@ from utils.utils import get_params, preprocess, lr_decay, convert_to_tensors, re
 import argparse
 
 # enable eager mode
-tf.enable_eager_execution()
-tf.set_random_seed(7)
+# tf.enable_eager_execution()
+
+# Reenable later
+tf.random.set_seed(7)
 np.random.seed(7)
 
 
@@ -23,7 +24,9 @@ def train(loader, model, epochs=5, batch_size=2, show_loss=False, augmenter=None
     for epoch in range(epochs):  # for each epoch
         lr_decay(lr, init_lr, 1e-9, epoch, epochs - 1)  # compute the new lr
         print('epoch: ' + str(epoch) + '. Learning rate: ' + str(lr.numpy()))
-        for step in range(steps_per_epoch):  # for every batch
+
+        print(steps_per_epoch)
+        for step in range(int(steps_per_epoch)):  # for every batch
             with tf.GradientTape() as g:
                 # get batch
                 x, y, mask = loader.get_batch(size=batch_size, train=True, augmenter=augmenter)
@@ -104,8 +107,8 @@ if __name__ == "__main__":
     model = Segception.Segception_small(num_classes=n_classes, weights=None, input_shape=(None, None, channels))
 
     # optimizer
-    learning_rate = tfe.Variable(lr)
-    optimizer = tf.train.AdamOptimizer(learning_rate)
+    learning_rate = tf.Variable(lr)
+    optimizer = tf.compat.v1.train.AdamOptimizer(learning_rate)
 
     # Init models (optional, just for get_params function)
     init_model(model, input_shape=(batch_size, width, height, channels))
@@ -115,8 +118,8 @@ if __name__ == "__main__":
     variables_to_optimize = model.variables
 
     # Init saver. can use also ckpt = tfe.Checkpoint((model=model, optimizer=optimizer,learning_rate=learning_rate, global_step=global_step)
-    saver_model = tfe.Saver(var_list=variables_to_save)
-    restore_model = tfe.Saver(var_list=variables_to_restore)
+    saver_model = tf.compat.v1.train.Saver(var_list=variables_to_save)
+    restore_model = tf.compat.v1.train.Saver(var_list=variables_to_restore)
 
     # restore if model saved and show number of params
     restore_state(restore_model, name_best_model)

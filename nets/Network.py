@@ -329,7 +329,7 @@ class RefineNet(tf.keras.Model):
         # get non refined segmentation
         segmentation = self.base_model(inputs, training=training)
 
-        for i in xrange(iterations):
+        for i in range(iterations):
             x = tf.concat([inputs, segmentation], -1)
             x = self.conv(x, training=training)
             segmentation = self.conv_logits(x)
@@ -590,7 +590,7 @@ class FeatureGeneration(tf.keras.Model):
 
         self.conv0 = Conv_BN(self.filters, kernel_size=1)
         self.blocks = []
-        for n in xrange(blocks):
+        for n in range(blocks):
             self.blocks = self.blocks + [
                 ShatheBlock(self.filters, kernel_size=kernel_size, dilation_rate=dilation_rate)]
 
@@ -614,7 +614,7 @@ class FeatureGeneration_Dil(tf.keras.Model):
 
         self.conv0 = Conv_BN(self.filters, kernel_size=1)
         self.blocks = []
-        for n in xrange(blocks):
+        for n in range(blocks):
             self.blocks = self.blocks + [
                 ShatheBlock_MultiDil(self.filters, kernel_size=kernel_size, dilation_rate=dilation_rate)]
 

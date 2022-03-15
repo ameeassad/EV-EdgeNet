@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-import tensorflow.contrib.eager as tfe
+# import tensorflow.contrib.eager as tfe
 from sklearn.metrics import confusion_matrix
 import math
 import os
@@ -15,7 +15,7 @@ def get_params(model):
         shape = variable.get_shape()
         variable_parameters = 1
         for dim in shape:
-            variable_parameters *= dim.value
+            variable_parameters *= dim
         total_parameters += variable_parameters
     print("Total parameters of the net: " + str(total_parameters) + " == " + str(total_parameters / 1000000.0) + "M")
 
@@ -130,7 +130,7 @@ def get_metrics(loader, model, n_classes, train=True, flip_inference=False, scal
     else:
         loader.index_test = 0
 
-    accuracy = tfe.metrics.Accuracy()
+    accuracy = tf.metrics.Accuracy()
     conf_matrix = np.zeros((n_classes, n_classes))
     if train:
         samples = len(loader.image_train_list)

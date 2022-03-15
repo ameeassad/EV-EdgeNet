@@ -5,7 +5,7 @@ import tensorflow as tf
 from tensorflow.keras.utils import to_categorical
 import glob
 import cv2
-from augmenters import get_augmenter
+from .augmenters import get_augmenter
 
 np.random.seed(7)
 problemTypes = ['classification', 'segmentation']
@@ -207,6 +207,8 @@ class Loader:
             event_list = self.events_train_list
 
             # Get [size] random numbers
+            print(len(image_list))
+
             indexes = [i % len(image_list) for i in range(self.index_train, self.index_train + size)]
             self.index_train = indexes[-1] + 1
 
