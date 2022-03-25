@@ -62,7 +62,7 @@ def erase_ignore_pixels(labels, predictions, mask):
     return labels, predictions
 
 # generate and write an image into the disk
-def generate_image(image_scores, output_dir, dataset, loader, train=False):
+def generate_image(image_scores, output_dir, dataset, loader, train=False, suffix=""):
     # Get image name
     if train:
         list = loader.image_train_list
@@ -84,10 +84,13 @@ def generate_image(image_scores, output_dir, dataset, loader, train=False):
 
     # write it
     image = np.argmax(image_scores, axis=-1).astype(float)
-    image *= 255/(image.max() + 1)
+    image *= 255/image_scores.shape[-1]
 
-    name_split = list[index - 1].split('/')
-    name = name_split[-1].replace('.jpg', '.png').replace('.jpeg', '.png')
+    # this is the shittiest path handling ive ever seen ffs
+    name_split = list[index - 1].split('/')[-1].split('.')
+    name = name_split[0] + suffix + "." + name_split[1]
+    name = name.replace('.jpg', '.png').replace('.jpeg', '.png')
+
     cv2.imwrite(os.path.join(out_dir, name), image)
 
 def inference(model, batch_images, n_classes, flip_inference=True, scales=[1], preprocess_mode=None):
@@ -125,7 +128,7 @@ def inference(model, batch_images, n_classes, flip_inference=True, scales=[1], p
 
 # get accuracy and miou from a model
 def get_metrics(loader, model, n_classes, train=True, flip_inference=False, scales=[1], write_images=False,
-                preprocess_mode=None):
+                preprocess_mode=None, n_samples_max=None):
     if train:
         loader.index_train = 0
     else:
@@ -133,22 +136,28 @@ def get_metrics(loader, model, n_classes, train=True, flip_inference=False, scal
 
     accuracy = tf.metrics.Accuracy()
     conf_matrix = np.zeros((n_classes, n_classes))
-    if train:
-        samples = len(loader.image_train_list)
-    else:
-        samples = len(loader.image_test_list)
 
-    for step in range(samples):  # for every batch
-        x, y, mask = loader.get_batch(size=1, train=train, augmenter=False)
+    n_samples = len(loader.image_train_list) if train else len(loader.image_test_list)
+    if n_samples_max is not None:
+        n_samples = min(n_samples, n_samples_max)
 
-        [y] = convert_to_tensors([y])
+    batch_size = 1
+    for step in range(n_samples):  # for every batch
+        print(f"Parsing img {step + 1}/{n_samples}", end="\r")
+        x, y_raw, mask = loader.get_batch(size=batch_size, train=train, augmenter=False)
+
+        [y] = convert_to_tensors([y_raw])
         y_ = inference(model, x, n_classes, flip_inference, scales, preprocess_mode=preprocess_mode)
 
         # generate images
         if write_images:
-            generate_image(y_[0, ...], 'images_out', loader.dataFolderPath, loader, train)
+            for img_idx in range(batch_size):
+                generate_image(y_[img_idx, ...], 'images_out', loader.dataFolderPath, loader, train)
 
-        # Rephape
+                # Also write test properly
+                generate_image(y_raw[img_idx, ...], 'images_out', loader.dataFolderPath, loader, train, suffix="_test")
+
+        # Reshape
         y = tf.reshape(y, [y.shape[1] * y.shape[2] * y.shape[0], y.shape[3]])
         y_ = tf.reshape(y_, [y_.shape[1] * y_.shape[2] * y_.shape[0], y_.shape[3]])
         mask = tf.reshape(mask, [mask.shape[1] * mask.shape[2] * mask.shape[0]])
