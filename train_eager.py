@@ -6,13 +6,8 @@ import utils.Loader as Loader
 from utils.utils import get_params, preprocess, lr_decay, convert_to_tensors, restore_state, init_model, get_metrics
 import argparse
 
-# enable eager mode
-# tf.enable_eager_execution()
-
-# Reenable later
 tf.random.set_seed(7)
 np.random.seed(7)
-
 
 # Trains the model for certains epochs on a dataset
 def train(loader, model, epochs=5, batch_size=2, show_loss=True, augmenter=None, lr=None, init_lr=2e-4,
@@ -68,7 +63,7 @@ def train(loader, model, epochs=5, batch_size=2, show_loss=True, augmenter=None,
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dataset", help="Dataset path", default='dataset_our_codification')
+    parser.add_argument("--dataset", help="Dataset path", default='dataset')
     parser.add_argument("--model_path", help="Model path", default='weights/model')
     parser.add_argument("--n_classes", help="number of classes to classify", default=6)
     parser.add_argument("--batch_size", help="batch size", default=8)
@@ -81,7 +76,6 @@ if __name__ == "__main__":
 
     n_gpu = int(args.n_gpu)
     os.environ["CUDA_VISIBLE_DEVICES"] = str(n_gpu)
-
 
     n_classes = int(args.n_classes)
     batch_size = int(args.batch_size)

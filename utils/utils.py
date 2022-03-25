@@ -21,13 +21,12 @@ def get_params(model):
 
 # preprocess a batch of images
 def preprocess(x, mode='imagenet'):
-    if mode:
-        if 'imagenet' in mode:
-            return tf.keras.applications.xception.preprocess_input(x)
-        elif 'normalize' in mode:
-            return  x.astype(np.float32) / 127.5 - 1
-    else:
-        return x
+    if mode is None: return x
+
+    if 'imagenet' in mode:
+        return tf.keras.applications.xception.preprocess_input(x)
+    elif 'normalize' in mode:
+        return  x.astype(np.float32) / (255/2) - 1
 
 # applies to a lerarning rate tensor (lr) a decay schedule, the polynomial decay
 def lr_decay(lr, init_learning_rate, end_learning_rate, epoch, total_epochs, power=0.9):
@@ -84,7 +83,9 @@ def generate_image(image_scores, output_dir, dataset, loader, train=False):
         os.makedirs(out_dir)
 
     # write it
-    image = np.argmax(image_scores, 2)
+    image = np.argmax(image_scores, axis=-1).astype(float)
+    image *= 255/(image.max() + 1)
+
     name_split = list[index - 1].split('/')
     name = name_split[-1].replace('.jpg', '.png').replace('.jpeg', '.png')
     cv2.imwrite(os.path.join(out_dir, name), image)
@@ -145,8 +146,7 @@ def get_metrics(loader, model, n_classes, train=True, flip_inference=False, scal
 
         # generate images
         if write_images:
-            print('Writing images')
-            generate_image(y_[0,:,:,:], 'images_out', loader.dataFolderPath, loader, train)
+            generate_image(y_[0, ...], 'images_out', loader.dataFolderPath, loader, train)
 
         # Rephape
         y = tf.reshape(y, [y.shape[1] * y.shape[2] * y.shape[0], y.shape[3]])
