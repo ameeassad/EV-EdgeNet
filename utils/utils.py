@@ -155,7 +155,7 @@ def get_metrics(loader, model, n_classes, train=True, flip_inference=False, scal
                 generate_image(y_[img_idx, ...], 'images_out', loader.dataFolderPath, loader, train)
 
                 # Also write test properly
-                generate_image(y_raw[img_idx, ...], 'images_out', loader.dataFolderPath, loader, train, suffix="_test")
+                generate_image(y_raw[img_idx, ...], 'images_out', loader.dataFolderPath, loader, train, suffix="_label")
 
         # Reshape
         y = tf.reshape(y, [y.shape[1] * y.shape[2] * y.shape[0], y.shape[3]])
