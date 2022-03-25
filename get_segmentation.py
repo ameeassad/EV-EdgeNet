@@ -1,7 +1,6 @@
 from __future__ import print_function, absolute_import, division
 import numpy as np
 import tensorflow as tf
-import tensorflow.contrib.eager as tfe
 import os
 import nets.Network as Segception
 import argparse
@@ -9,9 +8,7 @@ from utils.utils import get_params, restore_state, init_model, inference
 import cv2
 from collections import namedtuple
 
-# enable eager mode
-tf.enable_eager_execution()
-tf.set_random_seed(7)
+tf.random.set_seed(7)
 np.random.seed(7)
 
 Label = namedtuple( 'Label' , [
@@ -109,7 +106,6 @@ if __name__ == "__main__":
     channels = 1
     name_best_model = os.path.join(args.model_path, 'best')
 
-
     # build model and optimizer
     model = Segception.Segception_v4(num_classes=n_classes, weights=None, input_shape=(None, None, channels))
 
@@ -121,13 +117,12 @@ if __name__ == "__main__":
     variables_to_optimize = model.variables
 
     # Init saver. can use also ckpt = tfe.Checkpoint((model=model, optimizer=optimizer,learning_rate=learning_rate, global_step=global_step)
-    saver_model = tfe.Saver(var_list=variables_to_save)
-    restore_model = tfe.Saver(var_list=variables_to_restore)
+    saver_model = tf.compat.v1.train.Saver(var_list=variables_to_save)
+    restore_model = tf.compat.v1.train.Saver(var_list=variables_to_restore)
 
     # restore if model saved and show number of params
     restore_state(restore_model, name_best_model)
     get_params(model)
-
 
     img = cv2.imread(args.image_path, 0)
     img = cv2.resize(img, (width, height), interpolation=cv2.INTER_AREA).astype(np.float32)
