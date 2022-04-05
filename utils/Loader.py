@@ -13,7 +13,7 @@ problemTypes = ['classification', 'segmentation']
 
 class Loader:
     def __init__(self, dataFolderPath, width=224, height=224, channels=3, n_classes=21, problemType='segmentation',
-                 median_frequency=0, other=False, channels_events=0):
+                 median_frequency=0, other=False, channels_events=0, r_train_samples=1):
         self.dataFolderPath = dataFolderPath
         self.height = height
         self.channels_events = channels_events
@@ -23,6 +23,9 @@ class Loader:
         self.index_train = 0  # indexes for iterating while training
         self.index_test = 0  # indexes for iterating while testing
         self.median_frequency_soft = median_frequency  # softener value for the median frequency balancing (if median_frequency==0, nothing is applied, if median_frequency==1, the common formula is applied)
+
+        # Share of training samples to use
+        self.r_train_samples = r_train_samples
 
         print('Reading files...')
         '''
@@ -60,6 +63,7 @@ class Loader:
         print('Structuring test and train files...')
         self.test_list = [file for file in files if '/test/' in file]
         self.train_list = [file for file in files if '/train/' in file]
+
         if other:
             self.test_list = [file for file in files if '/other/' in file]
 
@@ -109,7 +113,6 @@ class Loader:
             self.events_train_list = [file for file in self.train_list if '/events/' in file]
             self.events_test_list = [file for file in self.test_list if '/events/' in file]
 
-
             self.label_test_list.sort()
             self.image_test_list.sort()
             self.label_train_list.sort()
@@ -118,6 +121,7 @@ class Loader:
             self.events_test_list.sort()
 
             # Shuffle train
+            self.n_train_samples = int(len(self.image_train_list)*self.r_train_samples)
             self.suffle_segmentation()
 
             print('Loaded ' + str(len(self.image_train_list)) + ' training samples')
@@ -133,6 +137,9 @@ class Loader:
         if self.problemType == 'segmentation':
             s = np.arange(len(self.image_train_list))
             np.random.shuffle(s)
+
+            if self.r_train_samples < 1: s = s[:self.n_train_samples]
+
             self.image_train_list = np.array(self.image_train_list)[s]
             self.label_train_list = np.array(self.label_train_list)[s]
             self.events_train_list = np.array(self.events_train_list)[s]

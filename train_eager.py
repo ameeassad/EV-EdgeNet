@@ -10,15 +10,14 @@ tf.random.set_seed(7)
 np.random.seed(7)
 
 # Trains the model for certains epochs on a dataset
-def train(loader, model, epochs=5, batch_size=2, show_loss=True, augmenter=None, lr=None, init_lr=2e-4,
-          saver=None, variables_to_optimize=None, evaluation=True, name_best_model = 'weights/best', preprocess_mode=None):
-    training_samples = len(loader.image_train_list)
-    steps_per_epoch = (training_samples / batch_size) + 1
+def train(loader, model, epochs=15, batch_size=8, show_loss=True, augmenter=None, lr=None, init_lr=1e-4,
+          saver=None, variables_to_optimize=None, evaluation=True, name_best_model = 'weights/best_own', preprocess_mode=None):
+    steps_per_epoch = (loader.n_train_samples // batch_size) + 1
     best_miou = 0
 
     for epoch in range(epochs):  # for each epoch
         lr_decay(lr, init_lr, 1e-9, epoch, epochs - 1)  # compute the new lr
-        print('epoch: ' + str(epoch) + '. Learning rate: ' + str(lr.numpy()))
+        print('epoch: ' + str(epoch) + '. Learning rate: ' + str(lr.numpy()) + 'Total steps per epoch: ' + str(steps_per_epoch))
 
         for step in range(int(steps_per_epoch)):  # for every batch
             with tf.GradientTape() as g:
@@ -42,8 +41,8 @@ def train(loader, model, epochs=5, batch_size=2, show_loss=True, augmenter=None,
         if evaluation:
             # get metrics
             #train_acc, train_miou = get_metrics(loader, model, loader.n_classes, train=True, preprocess_mode=preprocess_mode)
-            test_acc, test_miou = get_metrics(loader, model, loader.n_classes, train=False, flip_inference=False,
-                                              scales=[1], preprocess_mode=preprocess_mode)
+            test_acc, test_miou = get_metrics(loader, model, loader.n_classes, train=False, flip_inference=False, write_images=False,
+                                              scales=[1], preprocess_mode=preprocess_mode, n_samples_max=100)
 
             #print('Train accuracy: ' + str(train_acc.numpy()))
             #print('Train miou: ' + str(train_miou))
@@ -51,12 +50,12 @@ def train(loader, model, epochs=5, batch_size=2, show_loss=True, augmenter=None,
             print('Test miou: ' + str(test_miou))
             print('')
 
-            # save model if bet
+            # save model if best
             if test_miou > best_miou:
                 best_miou = test_miou
-                saver.save(name_best_model)
+                saver.save(None, name_best_model)
         else:
-              saver.save(name_best_model)
+              saver.save(None,name_best_model)
 
         loader.suffle_segmentation()  # sheffle trainign set
 
@@ -70,8 +69,9 @@ if __name__ == "__main__":
     parser.add_argument("--epochs", help="number of epochs to train", default=500)
     parser.add_argument("--width", help="number of epochs to train", default=352)
     parser.add_argument("--height", help="number of epochs to train", default=224)
-    parser.add_argument("--lr", help="init learning rate", default=1e-3)
+    parser.add_argument("--lr", help="init learning rate", default=1e-4)
     parser.add_argument("--n_gpu", help="number of the gpu", default=0)
+    parser.add_argument("--r_samples", help="ratio of training samples used", default=1)
     args = parser.parse_args()
 
     n_gpu = int(args.n_gpu)
@@ -83,6 +83,7 @@ if __name__ == "__main__":
     width =  int(args.width)
     height =  int(args.height)
     lr = float(args.lr)
+    r_samples = float(args.r_samples)
 
     channels = 6 # input of 6 channels
     channels_image = 0
@@ -91,7 +92,8 @@ if __name__ == "__main__":
     name_best_model = os.path.join(folder_best_model,'best')
     dataset_path = args.dataset
     loader = Loader.Loader(dataFolderPath=dataset_path, n_classes=n_classes, problemType='segmentation',
-                           width=width, height=height, channels=channels_image, channels_events=channels_events)
+                           width=width, height=height, channels=channels_image, channels_events=channels_events,
+                           r_train_samples=r_samples)
 
     if not os.path.exists(folder_best_model):
         os.makedirs(folder_best_model)
@@ -114,9 +116,9 @@ if __name__ == "__main__":
     saver_model = tf.compat.v1.train.Saver(var_list=variables_to_save)
     restore_model = tf.compat.v1.train.Saver(var_list=variables_to_restore)
 
-    # restore if model saved and show number of params
-    restore_state(restore_model, name_best_model)
-    get_params(model)
+    # # restore if model saved and show number of params
+    # restore_state(restore_model, name_best_model)
+    # get_params(model)
 
     if epochs > 0:
         train(loader=loader, model=model, epochs=epochs, batch_size=batch_size, augmenter='segmentation', lr=learning_rate,
