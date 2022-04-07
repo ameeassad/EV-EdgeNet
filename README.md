@@ -1,3 +1,6 @@
+# FORK: Attempt to reproduce
+Includes fixes for Python3 + TF2.7
+
 # Ev-SegNet
 
 [![Ev-SegNet](utils/image.png)](https://youtu.be/YQXBjWUSiaA)
