@@ -91,6 +91,7 @@ if __name__ == "__main__":
     folder_best_model = args.model_path
     name_best_model = os.path.join(folder_best_model,'best')
     dataset_path = args.dataset
+    print(dataset_path)
     loader = Loader.Loader(dataFolderPath=dataset_path, n_classes=n_classes, problemType='segmentation',
                            width=width, height=height, channels=channels_image, channels_events=channels_events,
                            r_train_samples=r_samples)
