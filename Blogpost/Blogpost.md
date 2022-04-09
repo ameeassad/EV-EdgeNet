@@ -4,11 +4,11 @@
 In 2018, a method was proposed by Iñigo Alonso and Ana C. Murillo for the semantic
 segmentation of scenes from the DDD17 dataset (DAVIS Driving Dataset). Semantic
 segmentation (i.e. labelling different types of objects in an image) of street scenes had
-been a common application for deep neural networks.  
+been a common application for deep neural networks.<br>
 So then what was the catch? Whereas traditional methods used camera images as input,
 EV-SegNet uses event-based data, a datatype that is notoriously unintuitive and hard to
 interpret for both human and computer brains. As if the challenge was not large enough
-yet, no existing labeled dataset was available (at the time).  
+yet, no existing labeled dataset was available (at the time).<br>
 In the context of the 'Reproducibility project' for the Deep Learning course at Delft
 University of Technology, we attempted to reproduce the results presented in Alonso and
 Murillo's paper.
@@ -16,7 +16,7 @@ Murillo's paper.
 
 ## Background Information
 
-In order to make sure that the methodology in the original paper [1] and reproduction is
+In order to make sure that the methodology in the original paper [^1] and reproduction is
 clear, we will shortly go over some key concepts essential to understanding the process.
 
 ### Event-based cameras
@@ -32,10 +32,9 @@ and at a certain time.
 Consider the image below, in the top row we see a representation of a classic camera
 image: as can be seen, the orange star moves slightly to the left from frame 1 to frame 2,
 however, based on a single frame we would never know if the star was moving, they are
-snapshots in time.  
-The bottom row are the event-based representations of the top row: at the first timestep,
-no changes are noted. At the second step, once the star has moved, some receptors observe
-a _change_ in intensity.
+snapshots in time. The bottom row are the event-based representations of the top row: at
+the first timestep, no changes are noted. At the second step, once the star has moved,
+some receptors observe a _change_ in intensity.
 
 ![](event_cam_fig.png)
 
@@ -47,7 +46,14 @@ the intensity change, different representations of event-based data can be obtai
 [This link](https://www.youtube.com/watch?v=MjX3z-6n3iA) provides an example of
 event-based cameras in action.
 
-### Semantic pixel level image segmentation
+### Semantic (pixel level) image segmentation
+
+Semantic segmentation is the process whereby images are segmented and labeled (through a
+machine learning process) according to object types/classes that are relevant to the 
+application. In the example below, the classes could be _car_ (blue), _cyclist_ (red) 
+and _road_ (light purple) among others.
+
+![](segment_example.png)
 
 ### Original method
 
@@ -58,11 +64,11 @@ event-based cameras in action.
 [What we did :
 
 - [ ] Replicated: A full implementation from scratch without using any pre-existing code.
-- [x] Reproduced: Existing code was evaluated
+- [X] Reproduced: Existing code was evaluated
 - [ ] Hyperparams check: Evaluating sensitivity to hyperparameters.
-- [x] New data: Evaluating different datasets to obtain similar results.
+- [X] New data: Evaluating different datasets to obtain similar results.
 - [ ] New algorithm variant: Evaluating a slightly different variant.
-- [x] New code variant: Rewrote or ported existing code to be more efficient/readable.
+- [X] New code variant: Rewrote or ported existing code to be more efficient/readable.
 - [ ] Ablation study: Additional ablation studies.
 
 ]
@@ -71,7 +77,8 @@ event-based cameras in action.
 
 ## References
 
-[1] Iñigo Alonso and Ana C. Murillo. Ev-segnet: Semantic segmentation for event-based
-cameras. 2018. URL: [https://arxiv.org/abs/1811.12039](https://), doi:10.48550/ARXIV.
-1811.12039
+[^1]: Iñigo Alonso and Ana C. Murillo. _Ev-segnet: Semantic segmentation for event-based
+cameras_. 2018. URL: [https://arxiv.org/abs/1811.12039](https://arxiv.org/abs/1811.12039),
 
+[^2]: Obtained
+from [CityScapes](https://www.cityscapes-dataset.com/examples/#fine-annotations) Dataset
