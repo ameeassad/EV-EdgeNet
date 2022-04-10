@@ -5,13 +5,14 @@ In 2018, a method was proposed by Iñigo Alonso and Ana C. Murillo for the seman
 segmentation of scenes from the DDD17 dataset (DAVIS Driving Dataset). Semantic
 segmentation (i.e. labelling different types of objects in an image) of street scenes had
 been a common application for deep neural networks.<br>
-So then what was the catch? Whereas traditional methods used camera images as input,
+So then what was the catch? Whereas traditional methods use camera images as input,
 EV-SegNet uses event-based data, a datatype that is notoriously unintuitive and hard to
 interpret for both human and computer brains. As if the challenge was not large enough
 yet, no existing labeled dataset was available (at the time).<br>
 In the context of the 'Reproducibility project' for the Deep Learning course at Delft
 University of Technology, we attempted to reproduce the results presented in Alonso and
-Murillo's paper.
+Murillo's paper. This blogpost aims to clarify the main concepts form the original 
+paper and presents the reproduction results.
 </i></b>
 
 ## Background Information
@@ -49,13 +50,31 @@ event-based cameras in action.
 ### Semantic (pixel level) image segmentation
 
 Semantic segmentation is the process whereby images are segmented and labeled (through a
-machine learning process) according to object types/classes that are relevant to the 
-application. In the example below, the classes could be _car_ (blue), _cyclist_ (red) 
+machine learning process) according to object types/classes that are relevant to the
+application. In the example[^2] below, the classes could be _car_ (blue), _cyclist_ (red)
 and _road_ (light purple) among others.
 
 ![](segment_example.png)
 
 ### Original method
+#### Event Representation
+
+As mentioned, the representation of event data depends heavily on the manner in which 
+it is processed. The most common way to present event data as an image is to arrange 
+the data points in an image grid according to the recorded positions _x_ and _y_, for 
+each of these pixels
+
+![](event_encoding_basic.png)
+
+![](event_encoding_6channels.png)
+[
+
+* event data: several interpretations combined
+* generating labels
+* CNN
+*
+
+]
 
 ## Reproduction
 
@@ -78,7 +97,6 @@ and _road_ (light purple) among others.
 ## References
 
 [^1]: Iñigo Alonso and Ana C. Murillo. _Ev-segnet: Semantic segmentation for event-based
-cameras_. 2018. URL: [https://arxiv.org/abs/1811.12039](https://arxiv.org/abs/1811.12039),
-
-[^2]: Obtained
-from [CityScapes](https://www.cityscapes-dataset.com/examples/#fine-annotations) Dataset
+       cameras_. 2018. URL: [https://arxiv.org/abs/1811.12039](https://arxiv.org/abs/1811.12039)
+    
+[^2]: Obtained from [CityScapes Dataset](https://www.cityscapes-dataset.com/examples/#fine-annotations)
