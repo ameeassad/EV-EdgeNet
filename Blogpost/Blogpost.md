@@ -11,8 +11,8 @@ interpret for both human and computer brains. As if the challenge was not large 
 yet, no existing labeled dataset was available (at the time).<br>
 In the context of the 'Reproducibility project' for the Deep Learning course at Delft
 University of Technology, we attempted to reproduce the results presented in Alonso and
-Murillo's paper. This blogpost aims to clarify the main concepts form the original 
-paper and presents the reproduction results.
+Murillo's paper. This blogpost aims to clarify the main concepts from the original paper
+and presents the reproduction results.
 </i></b>
 
 ## Background Information
@@ -57,14 +57,31 @@ and _road_ (light purple) among others.
 ![](segment_example.png)
 
 ### Original method
+
 #### Event Representation
 
-As mentioned, the representation of event data depends heavily on the manner in which 
-it is processed. The most common way to present event data as an image is to arrange 
-the data points in an image grid according to the recorded positions _x_ and _y_, for 
-each of these pixels
+As mentioned, the representation of event data depends heavily on the manner in which it
+is processed. The most common way to present event data corresponding to a certain
+time-step _t<sub>i</sub>_ as an image is to arrange the data points in an image grid
+according to the recorded positions _x_ and _y_, each of these pixels contain information
+on the events that took place during some time interval containing _t<sub>i</sub>_.  
+As a reference, this image aims to clarify the concept: A white pixel conveys the absence
+of a datapoint (i.e. no event was recorded at that time, at that location).
 
 ![](event_encoding_basic.png)
+
+The nature of the information in a pixel varies from method to method, for example one
+could take the integral of the events in the time interval. Additionally, different kinds
+of information can be stored in different channels, the same way RGB images' pixels record
+the intensity of red, green and blue wavelengths. For example, 2 channels can separate
+positive and negative events.  
+The method that was proposed stores the event information in 6 channels. The first one 
+is a histogram, it simply accumulates all the magnitudes of the events over the time 
+interval, summing them together. Second is the mean of all events in the time interval 
+and third the standard variation. These three methods all split the information into a 
+positive and a negative channel, resulting in 6 channels.  
+Please note that the colours in the figure below are only meant to signify the various 
+channels, they do not convey actual values.
 
 ![](event_encoding_6channels.png)
 [
@@ -97,6 +114,7 @@ each of these pixels
 ## References
 
 [^1]: Iñigo Alonso and Ana C. Murillo. _Ev-segnet: Semantic segmentation for event-based
-       cameras_. 2018. URL: [https://arxiv.org/abs/1811.12039](https://arxiv.org/abs/1811.12039)
-    
-[^2]: Obtained from [CityScapes Dataset](https://www.cityscapes-dataset.com/examples/#fine-annotations)
+cameras_. 2018. URL: [https://arxiv.org/abs/1811.12039](https://arxiv.org/abs/1811.12039)
+
+[^2]: Obtained
+from [CityScapes Dataset](https://www.cityscapes-dataset.com/examples/#fine-annotations)
