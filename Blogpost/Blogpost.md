@@ -1,19 +1,19 @@
 # A Reproduction of EV-SegNet: Semantic Segmentation for Event-based Cameras
 
-`<b><i>`
+<b><i>
 In 2018, a method was proposed by Iñigo Alonso and Ana C. Murillo for the semantic
 segmentation of scenes from the DDD17 dataset (DAVIS Driving Dataset). Semantic
 segmentation (i.e. labelling different types of objects in an image) of street scenes had
-been a common application for deep neural networks.`<br>`
+been a common application for deep neural networks.<br>
 So then what was the catch? Whereas traditional methods use camera images as input,
 EV-SegNet uses event-based data, a datatype that is notoriously unintuitive and hard to
 interpret for both human and computer brains. As if the challenge was not large enough
-yet, no existing labeled dataset was available (at the time).`<br>`
+yet, no existing labeled dataset was available (at the time).<br>
 In the context of the 'Reproducibility project' for the Deep Learning course at Delft
 University of Technology, we attempted to reproduce the results presented in Alonso and
 Murillo's paper. This blogpost aims to clarify the main concepts from the original paper
 and presents the reproduction results.
-`</i></b>`
+</i></b>
 
 ## Background Information
 
@@ -64,7 +64,7 @@ As mentioned, the representation of event data depends heavily on the manner in 
 is processed. The most common way to present event data corresponding to a certain
 time-step _t`<sub>`i`</sub>`_ as an image is to arrange the data points in an image grid
 according to the recorded positions _x_ and _y_, each of these pixels contain information
-on the events that took place during some time interval containing _t`<sub>`i`</sub>`_.
+on the events that took place during some time interval containing _t<sub>i</sub>_.
 
 As a reference, this image aims to clarify the concept: A white pixel conveys the absence
 of a datapoint (i.e. no event was recorded at that time, at that location).
@@ -107,6 +107,11 @@ greyscale images that accompany the DDD17 event-data. These results had an MIoU 
 
 ### CNN architecture
 
+Since CNN architectures are well known for their good performance on segmentation tasks,
+the method proposed in the paper employed an architecture heavily inspired on such.
+The architecture made use of the Xception[^3] model as an encoder and used backpropagation
+on the per-pixel cross-entropy loss to optimize the model.
+
 ### Their results
 
 | Input                | Accuracy (50ms) | MIoU (50ms) | Accuracy (10ms) | MIoU (10ms | Accuracy (250ms) | MIoU (250ms) |
@@ -115,9 +120,15 @@ greyscale images that accompany the DDD17 event-data. These results had an MIoU 
 | Grayscale image      | 94.67           | 64.98       | 94.67           | 64.98      | 94.67            | 64.98        |
 | Combined             | 95.22           | 68.36       | 95.18           | 67.95      | 95.29            | 68.26        |
 
+![](results.png)
+
 ## Reproduction
 
-The goal of our reproduction is to attempt to make their method robust for the future: 
+The goal of our reproduction is to attempt to make their method robust for the future:
+back in 2018, Alonso and Murillo built their method on Python 2.7 and TensorFlow 1.11
+structures. We attempted to adapt their code to be compatible with Python 3.x and
+TensorFlow 2.7. Additionally, we checked the performance of the algorithm when provided
+with newly generated ground truth labels for the testset.
 
 [philosophy: make the method robust for modern day]
 
@@ -142,3 +153,5 @@ cameras_. 2018. URL: [https://arxiv.org/abs/1811.12039](https://arxiv.org/abs/18
 
 [^2]: [CityScapes Dataset](https://www.cityscapes-dataset.com/examples/#fine-annotations)
 
+[^3]: F. Chollet. Xception: Deep learning with depthwise separable convolutions. 2017 IEEE
+Conference on Computer Vision and Pattern Recognition (CVPR), pages 1800–1807, 2017.
