@@ -132,6 +132,17 @@ The goal of our reproduction is to attempt to make their method robust for the f
 - [ ] Ablation study: Additional ablation studies.
 
 ]
+The Xception model used in the original work, has also been surpassed by better models. 
+Which is why we made the decision to use a newer model which was already pretrained on the cityscapes dataset.
+The only problem however is that this model uses more classes than the six classes used by the Xception model. 
+Thus we opted to group certain classes together to arrive back at six classes. The following classes were grouped together:
+
+The method that was implemented was using an outdated version of python,
+namely 2.7. Together with the by now outdated 1.x version of tensorflow. Thus we systematically 
+looked at the outdated functions and methods and converted these to work with tensorflow 2.8 and python 3.x.
+Most of the changes we made were to the file generating the segmentation labels from the output images,
+and the file which trains the model. Luckily tensorflow 2.8 contains compatability functions which operate identically
+to the older functions from tensorflow 1.x. 
 
 ## Conclusion
 
