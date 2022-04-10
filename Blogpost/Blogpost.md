@@ -51,8 +51,9 @@ event-based cameras in action.
 
 Semantic segmentation is the process whereby images are segmented and labeled (through a
 machine learning process) according to object types/classes that are relevant to the
-application. In the example[^2] below, the classes could be _car_ (blue), _cyclist_ (red)
-and _road_ (light purple) among others.
+application. In the example below (obtained from
+the [CityScapes Dataset](https://www.cityscapes-dataset.com/examples/)), the classes could
+be _car_ (blue), _cyclist_ (red) and _road_ (light purple) among others.
 
 ![](segment_example.png)
 
@@ -101,16 +102,16 @@ labels.
 
 As to avoid having to generate the label by hand, which is not only time-consuming but can
 be quite difficult as well, they employed a CNN and trained it on grayscale images from
-the CityScapes[^2] Dataset (that _did_ have ground truths) to generate labels on the
-greyscale images that accompany the DDD17 event-data. These results had an MIoU score of
-83% which they deemed sufficient to serve as ground truths for the event data.
+the CityScapes Dataset (that _did_ have ground truths) to generate labels on the greyscale
+images that accompany the DDD17 event-data. These results had an MIoU score of 83% which
+they deemed sufficient to serve as ground truths for the event data.
 
 ### CNN architecture
 
 Since CNN architectures are well known for their good performance on segmentation tasks,
-the method proposed in the paper employed an architecture heavily inspired on such.
-The architecture made use of the Xception[^3] model as an encoder and used backpropagation
-on the per-pixel cross-entropy loss to optimize the model.
+the method proposed in the paper employed an architecture heavily inspired on such. The
+architecture made use of the Xception[^2] model as an encoder and used backpropagation on
+the per-pixel cross-entropy loss to optimize the model.
 
 ### Their results
 
@@ -146,12 +147,12 @@ with newly generated ground truth labels for the testset.
 
 ## Conclusion
 
+## Discussion
+
 ## References
 
 [^1]: Iñigo Alonso and Ana C. Murillo. _Ev-segnet: Semantic segmentation for event-based
 cameras_. 2018. URL: [https://arxiv.org/abs/1811.12039](https://arxiv.org/abs/1811.12039)
 
-[^2]: [CityScapes Dataset](https://www.cityscapes-dataset.com/examples/#fine-annotations)
-
-[^3]: F. Chollet. Xception: Deep learning with depthwise separable convolutions. 2017 IEEE
+[^2]: F. Chollet. Xception: Deep learning with depthwise separable convolutions. 2017 IEEE
 Conference on Computer Vision and Pattern Recognition (CVPR), pages 1800–1807, 2017.
