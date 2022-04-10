@@ -56,15 +56,16 @@ and _road_ (light purple) among others.
 
 ![](segment_example.png)
 
-### Original method
+## Original method
 
-#### Event Representation
+### Event Representation
 
 As mentioned, the representation of event data depends heavily on the manner in which it
 is processed. The most common way to present event data corresponding to a certain
 time-step _t<sub>i</sub>_ as an image is to arrange the data points in an image grid
 according to the recorded positions _x_ and _y_, each of these pixels contain information
-on the events that took place during some time interval containing _t<sub>i</sub>_.  
+on the events that took place during some time interval containing _t<sub>i</sub>_.
+
 As a reference, this image aims to clarify the concept: A white pixel conveys the absence
 of a datapoint (i.e. no event was recorded at that time, at that location).
 
@@ -74,24 +75,39 @@ The nature of the information in a pixel varies from method to method, for examp
 could take the integral of the events in the time interval. Additionally, different kinds
 of information can be stored in different channels, the same way RGB images' pixels record
 the intensity of red, green and blue wavelengths. For example, 2 channels can separate
-positive and negative events.  
-The method that was proposed stores the event information in 6 channels. The first one 
-is a histogram, it simply accumulates all the magnitudes of the events over the time 
-interval, summing them together. Second is the mean of all events in the time interval 
-and third the standard variation. These three methods all split the information into a 
-positive and a negative channel, resulting in 6 channels.  
-Please note that the colours in the figure below are only meant to signify the various 
-channels, they do not convey actual values.
+positive and negative events.
+
+The method that was proposed stores the event information in 6 channels. The first one is
+a histogram, it simply accumulates all the magnitudes of the events over the time
+interval, summing them together. Second is the mean of all events in the time interval and
+third the standard variation. These three methods all split the information into a
+positive and a negative channel, resulting in 6 channels.
 
 ![](event_encoding_6channels.png)
-[
 
-* event data: several interpretations combined
-* generating labels
-* CNN
-*
+Please note that the colours in the figure are only meant to signify the various channels,
+they do not convey actual values, nor are the channels interpreted as colours in the
+original method. Below an example[^1] of three negative channels can be found.
 
-]
+![](eventdata_paper.png)
+
+### Ground truth labels
+
+One of the main challenges that Alonso and Murillo faced, was the scarcity of available
+data. The [DDD17 Dataset](http://sensors.ini.uzh.ch/news_page/DDD17.html)
+was one of the few event-based datasets for driving environments. The data contains
+greyscale images alongside the event-data, however it does not contain ground truth
+labels.
+
+As to avoid having to generate the label by hand, which is not only time-consuming but can
+be quite difficult as well, they employed a CNN and trained it on grayscale images from
+the CityScapes[^2] Dataset (that _did_ have ground truths) to generate labels on the
+greyscale images that accompany the DDD17 event-data. These results had an MIoU score of
+83% which they deemed sufficient to serve as ground truths for the event data.
+
+### CNN architecture
+
+
 
 ## Reproduction
 
@@ -116,5 +132,4 @@ channels, they do not convey actual values.
 [^1]: Iñigo Alonso and Ana C. Murillo. _Ev-segnet: Semantic segmentation for event-based
 cameras_. 2018. URL: [https://arxiv.org/abs/1811.12039](https://arxiv.org/abs/1811.12039)
 
-[^2]: Obtained
-from [CityScapes Dataset](https://www.cityscapes-dataset.com/examples/#fine-annotations)
+[^2]: [CityScapes Dataset](https://www.cityscapes-dataset.com/examples/#fine-annotations)
