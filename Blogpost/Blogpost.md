@@ -63,7 +63,7 @@ be _car_ (blue), _cyclist_ (red) and _road_ (light purple) among others.
 
 As mentioned, the representation of event data depends heavily on the manner in which it
 is processed. The most common way to present event data corresponding to a certain
-time-step _t`<sub>`i`</sub>`_ as an image is to arrange the data points in an image grid
+time-step _t<sub>i</sub>_ as an image is to arrange the data points in an image grid
 according to the recorded positions _x_ and _y_, each of these pixels contain information
 on the events that took place during some time interval containing _t<sub>i</sub>_.
 
@@ -131,7 +131,7 @@ structures. We attempted to adapt their code to be compatible with Python 3.x an
 TensorFlow 2.7. Additionally, we checked the performance of the algorithm when provided
 with newly generated ground truth labels for the testset.
 
-[philosophy: make the method robust for modern day]
+### Results
 
 [What we did :
 
@@ -148,6 +148,20 @@ with newly generated ground truth labels for the testset.
 ## Conclusion
 
 ## Discussion
+
+This reproduction was performed in the context of Delft University of Technology's course
+on Deep Learning. Our team consisted of three members: Rafaël Beckers, Evert De Vroey and
+Roy Vorster.
+
+Both Rafaël and Roy were mainly responsible for the technical aspects of this
+reproduction: adapting the original code to be compatibel with modern methods. Evert 
+was mainly responsible for communicating the results, namely writing this blogpost.
+
+[discussion on results]
+
+Some setbacks were encountered during the project. For a start, 2 of the 3 members 
+were unable to harvest the power of their GPU processors, due to incompatibility or 
+other issues with the Nividia CUDA system.
 
 ## References
 
