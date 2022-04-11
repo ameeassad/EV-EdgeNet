@@ -165,14 +165,15 @@ on Deep Learning. Our team consisted of three members: Rafaël Beckers, Evert De
 Roy Vorster.
 
 Both Rafaël and Roy were mainly responsible for the technical aspects of this
-reproduction: adapting the original code to be compatibel with modern methods. Evert 
+reproduction: adapting the original code to be compatible with modern methods. Evert 
 was mainly responsible for communicating the results, namely writing this blogpost.
 
 [discussion on results]
 
 Some setbacks were encountered during the project. For a start, 2 of the 3 members 
 were unable to harvest the power of their GPU processors, due to incompatibility or 
-other issues with the Nividia CUDA system.
+other issues with the Nividia CUDA system. Training the network on the full dataset with google cloud run
+was also unsuccesful, mainly due to inexperience with such software and issues with billing.
 
 ## References
 
