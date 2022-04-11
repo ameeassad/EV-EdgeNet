@@ -31,7 +31,7 @@ class Segception(tf.keras.Model):
         self.conv_logits = conv(filters=num_classes, kernel_size=1, strides=1, use_bias=True)
 
 
-    def call(self, inputs, training=None, mask=None):
+    def call(self, inputs, training=None, mask=None, aux_loss=False):
 
         outputs = self.model_output(inputs, training=training)
         # add activations to the ourputs of the model
@@ -59,6 +59,9 @@ class Segception(tf.keras.Model):
         x = upsampling(x, scale=2)
 
         x = self.conv_logits(x)
+
+        if aux_loss:
+            return x, x
 
         return x
 
@@ -217,6 +220,7 @@ class Segception_small(tf.keras.Model):
         self.aspp = ASPP_2(filters=32, kernel_size=3)
 
         self.conv_logits = conv(filters=num_classes, kernel_size=1, strides=1, use_bias=True)
+        self.conv_logits_aux = conv(filters=num_classes, kernel_size=1, strides=1, use_bias=True)
 
     def call(self, inputs, training=None, mask=None, aux_loss=False):
 
@@ -240,6 +244,10 @@ class Segception_small(tf.keras.Model):
 
         x = self.aspp(x, training=training, operation='sum')  # 128
 
+        x_aux = self.conv_logits_aux(x)
+        x_aux = upsampling(x_aux, scale=2)
+        x_aux_out = upsampling(x_aux, scale=2)
+
         x = upsampling(x, scale=2)
         x += reshape_into(self.adap_encoder_5(outputs[4], training=training), x)  # 64
         x = self.decoder_conv_4(x, training=training)  # 64
@@ -247,7 +255,7 @@ class Segception_small(tf.keras.Model):
         x = upsampling(x, scale=2)
 
         if aux_loss:
-            return x, x
+            return x, x_aux_out
         else:
             return x
 
