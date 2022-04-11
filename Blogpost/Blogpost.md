@@ -1,19 +1,19 @@
 # A Reproduction of EV-SegNet: Semantic Segmentation for Event-based Cameras
 
-`<b><i>`
+<b><i>
 In 2018, a method was proposed by Iñigo Alonso and Ana C. Murillo for the semantic
 segmentation of scenes from the DDD17 dataset (DAVIS Driving Dataset). Semantic
 segmentation (i.e. labelling different types of objects in an image) of street scenes had
-been a common application for deep neural networks.`<br>`
+been a common application for deep neural networks.<br>
 So then what was the catch? Whereas traditional methods use camera images as input,
 EV-SegNet uses event-based data, a datatype that is notoriously unintuitive and hard to
 interpret for both human and computer brains. As if the challenge was not large enough
-yet, no existing labeled dataset was available (at the time).`<br>`
+yet, no existing labeled dataset was available (at the time).<br>
 In the context of the 'Reproducibility project' for the Deep Learning course at Delft
 University of Technology, we attempted to reproduce the results presented in Alonso and
 Murillo's paper. This blogpost aims to clarify the main concepts from the original paper
 and presents the reproduction results.
-`</i></b>`
+</i></b>
 
 ## Background Information
 
@@ -51,8 +51,9 @@ event-based cameras in action.
 
 Semantic segmentation is the process whereby images are segmented and labeled (through a
 machine learning process) according to object types/classes that are relevant to the
-application. In the example[^2] below, the classes could be _car_ (blue), _cyclist_ (red)
-and _road_ (light purple) among others.
+application. In the example below (obtained from
+the [CityScapes Dataset](https://www.cityscapes-dataset.com/examples/)), the classes could
+be _car_ (blue), _cyclist_ (red) and _road_ (light purple) among others.
 
 ![](segment_example.png)
 
@@ -62,9 +63,9 @@ and _road_ (light purple) among others.
 
 As mentioned, the representation of event data depends heavily on the manner in which it
 is processed. The most common way to present event data corresponding to a certain
-time-step _t`<sub>`i`</sub>`_ as an image is to arrange the data points in an image grid
+time-step _t<sub>i</sub>_ as an image is to arrange the data points in an image grid
 according to the recorded positions _x_ and _y_, each of these pixels contain information
-on the events that took place during some time interval containing _t`<sub>`i`</sub>`_.
+on the events that took place during some time interval containing _t<sub>i</sub>_.
 
 As a reference, this image aims to clarify the concept: A white pixel conveys the absence
 of a datapoint (i.e. no event was recorded at that time, at that location).
@@ -101,11 +102,16 @@ labels.
 
 As to avoid having to generate the label by hand, which is not only time-consuming but can
 be quite difficult as well, they employed a CNN and trained it on grayscale images from
-the CityScapes[^2] Dataset (that _did_ have ground truths) to generate labels on the
-greyscale images that accompany the DDD17 event-data. These results had an MIoU score of
-83% which they deemed sufficient to serve as ground truths for the event data.
+the CityScapes Dataset (that _did_ have ground truths) to generate labels on the greyscale
+images that accompany the DDD17 event-data. These results had an MIoU score of 83% which
+they deemed sufficient to serve as ground truths for the event data.
 
 ### CNN architecture
+
+Since CNN architectures are well known for their good performance on segmentation tasks,
+the method proposed in the paper employed an architecture heavily inspired on such. The
+architecture made use of the Xception[^2] model as an encoder and used backpropagation on
+the per-pixel cross-entropy loss to optimize the model.
 
 ### Their results
 
@@ -115,11 +121,17 @@ greyscale images that accompany the DDD17 event-data. These results had an MIoU 
 | Grayscale image      | 94.67           | 64.98       | 94.67           | 64.98      | 94.67            | 64.98        |
 | Combined             | 95.22           | 68.36       | 95.18           | 67.95      | 95.29            | 68.26        |
 
+![](results.png)
+
 ## Reproduction
 
-The goal of our reproduction is to attempt to make their method robust for the future: 
+The goal of our reproduction is to attempt to make their method robust for the future:
+back in 2018, Alonso and Murillo built their method on Python 2.7 and TensorFlow 1.11
+structures. We attempted to adapt their code to be compatible with Python 3.x and
+TensorFlow 2.7. Additionally, we checked the performance of the algorithm when provided
+with newly generated ground truth labels for the testset.
 
-[philosophy: make the method robust for modern day]
+### Results
 
 [What we did :
 
@@ -146,10 +158,26 @@ to the older functions from tensorflow 1.x.
 
 ## Conclusion
 
+## Discussion
+
+This reproduction was performed in the context of Delft University of Technology's course
+on Deep Learning. Our team consisted of three members: Rafaël Beckers, Evert De Vroey and
+Roy Vorster.
+
+Both Rafaël and Roy were mainly responsible for the technical aspects of this
+reproduction: adapting the original code to be compatibel with modern methods. Evert 
+was mainly responsible for communicating the results, namely writing this blogpost.
+
+[discussion on results]
+
+Some setbacks were encountered during the project. For a start, 2 of the 3 members 
+were unable to harvest the power of their GPU processors, due to incompatibility or 
+other issues with the Nividia CUDA system.
+
 ## References
 
 [^1]: Iñigo Alonso and Ana C. Murillo. _Ev-segnet: Semantic segmentation for event-based
 cameras_. 2018. URL: [https://arxiv.org/abs/1811.12039](https://arxiv.org/abs/1811.12039)
 
-[^2]: [CityScapes Dataset](https://www.cityscapes-dataset.com/examples/#fine-annotations)
-
+[^2]: F. Chollet. Xception: Deep learning with depthwise separable convolutions. 2017 IEEE
+Conference on Computer Vision and Pattern Recognition (CVPR), pages 1800–1807, 2017.
