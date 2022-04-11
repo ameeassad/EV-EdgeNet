@@ -127,74 +127,110 @@ the per-pixel cross-entropy loss to optimize the model.
 
 The goal of our reproduction is to attempt to make their method robust for the future:
 back in 2018, Alonso and Murillo built their method on Python 2.7 and TensorFlow 1.11
-structures. We attempted to adapt their code to be compatible with Python 3.x and
-TensorFlow 2.7. Additionally, we checked the performance of the algorithm when provided
+structures. We attempted to adapt their code[^3] to be compatible with Python 3.x and
+TensorFlow 2.7. The model was then trained from scratch, using the data provided with the
+original paper. Additionally, we checked the performance of the algorithm when provided
 with newly generated ground truth labels for the testset.
 
-<!-- ### Results -->
-
+<!--
 [What we did :
 
 - [ ] Replicated: A full implementation from scratch without using any pre-existing code.
 - [x] Reproduced: Existing code was evaluated
 - [ ] Hyperparams check: Evaluating sensitivity to hyperparameters.
-- [x] New data: Evaluating different datasets (for label generation) to obtain similar results.
+- [x] New data: Evaluating different datasets (for label generation) to obtain similar
+  results.
 - [ ] New algorithm variant: Evaluating a slightly different variant.
 - [x] New code variant: Rewrote or ported existing code to be more efficient/readable.
 - [ ] Ablation study: Additional ablation studies.
 
 ]
+-->
 
-The method that was implemented was using an outdated version of python 2, together with the by now outdated 1.x version of tensorflow. Thus we systematically 
-looked at the outdated functions and methods and converted these to work with tensorflow 2.8 and python 3.x.
-Most of the changes we made were to the file generating the segmentation labels from the output images,
-and the file which trains the model. Luckily tensorflow 2.8 contains compatability functions which operate identically
-to the older functions from tensorflow 1.x.
+### Compatibility
 
-### Issues with reproduction
-Several issues were encountered in the reproduction process which are caused by insufficient information, namely:
-- The authors did not specify the exact network architecture in the paper, noting only that an Xception encoder is used and that a 'light decoder' is built, 'concentrating the heavy computation on the encoder'. The repository from the paper's authors includes multiple architectures. The model 'Segception\_small' is used by default, but there are reasons to believe why the default in the code is not necessarily the model that was used in the paper, see below.
-- The paper references using auxiliary loss during training, this is a common method to combat vanishing gradients in deep models. The '\_small' model however does not properly implement an auxiliary loss (in the code it's simply a copy of the normal model loss). Two models in the given repository did properly implement an auxiliary loss, one of which did not use Xception as a base model and hence does not match the paper, the other was so large that our computation resources were insufficient without sacrificing on batch size. _We have implemented an auxiliary loss on the '\_small' model ourselves and noticed a decrease in performance, see below. We are unsure whether auxiliary loss has actually been used for the results in the paper.
-- Not all hyperparameters are fully specified in the paper, most noticeably the exact number of epochs and what type of polynomial scheduling was used. The default number of epochs is 500 in the repository (the paper mentions 30k iterations, which would be around 15 epochs). This adds to the reasons (as above) we have to believe that the defaults in the repository are not necessarily what's been used for the results in the paper.
-- The given event data has already been processed, simply supplied as _.npy_ files. The code for the pre-processing steps is not included in the given repository. This means that the time used for differences in the event data (the 50ms, 250ms, ...) in the table above is not fully reproducible. We are assuming that 50ms is used for the given event data.
-- The authors are unclear about how they integrated grayscale and event data for the final row in the table above.
-- The given 'best' weights in the repository do not actually result in the given results in the paper, the accuracy and mIoU with just inference over those given weights are significantly lower.
-- No learning curves are supplied in the paper, only final outcomes. Given that there are some things that are unclear or confusing in the paper, having learning curves could have helped to see whether we're on the right track with the model used for the results in the paper.
+The method that was implemented was using an outdated version of python 2, together with
+the by now outdated 1.x version of tensorflow. Thus we systematically looked at the
+outdated functions and methods and converted these to work with tensorflow 2.8 and python
+3.x. Most of the changes we made were to the file generating the segmentation labels from
+the output images, and the file which trains the model. Luckily tensorflow 2.8 contains
+compatability functions which operate identically to the older functions from tensorflow
+1.x.
 
-There were also issues from our side:
-- Computation resources were limited, which meant we weren't able to use the bigger models in the repository with the given batch size. Again, we are unsure what model has actually been used as the authors don't provide a detailed description.
-- Related to this, we did not manage to get Google Colab to work with the given credits.
+### Using a SOTA SegNet for generating labels
 
-### Results
-
-
-
-
-#### Using a SOTA SegNet for generating labels
-The model used in the original work to generate ground truths has been surpassed by higher accuracy pre-trained models. We elected to use a newer model trained on cityscapes, to see whether the model was somehow very sensitive to intricacies due to the original model used to generate segmentation images. This newer model was trained to generate more than 6 classes, we grouped certain classes together to match the 6 classes used in the paper.
+The model used in the original work to generate ground truths has been surpassed by higher
+accuracy pre-trained models. We elected to use a newer model trained on cityscapes, to see
+whether the model was somehow very sensitive to intricacies due to the original model used
+to generate segmentation images. This newer model was trained to generate more than 6
+classes, we grouped certain classes together to match the 6 classes used in the paper.
 
 <!-- The Xception model used in the original work, has also been surpassed by better models. 
 Which is why we made the decision to use a newer model which was already pretrained on the cityscapes dataset.
 The only problem however is that this model uses more classes than the six classes used by the Xception model. 
 Thus we opted to group certain classes together to arrive back at six classes. The following classes were grouped together: TODO -->
 
-## Conclusion
+### Results
 
-## Discussion
+## Reflection
 
 This reproduction was performed in the context of Delft University of Technology's course
 on Deep Learning. Our team consisted of three members: Rafaël Beckers, Evert De Vroey and
 Roy Vorster.
 
 Both Rafaël and Roy were mainly responsible for the technical aspects of this
-reproduction: adapting the original code to be compatibel with modern methods. Evert 
-was mainly responsible for communicating the results, namely writing this blogpost.
+reproduction: adapting the original code to be compatibel with modern methods. Evert was
+mainly responsible for communicating the results, namely writing this blogpost.
 
-[discussion on results]
+<!--[discussion on results]-->
 
-Some setbacks were encountered during the project. For a start, 2 of the 3 members 
-were unable to harvest the power of their GPU processors, due to incompatibility or 
-other issues with the Nvidia CUDA system.
+### Issues with reproduction
+
+Several issues were encountered in the reproduction process which are caused by
+insufficient information, namely:
+
+- The authors did not specify the exact network architecture in the paper, noting only
+  that an Xception encoder is used and that a 'light decoder' is built, 'concentrating the
+  heavy computation on the encoder'. The repository from the paper's authors includes
+  multiple architectures. The model 'Segception\_small' is used by default, but there are
+  reasons to believe why the default in the code is not necessarily the model that was
+  used in the paper, see below.
+- The paper references using auxiliary loss during training, this is a common method to
+  combat vanishing gradients in deep models. The '\_small' model however does not properly
+  implement an auxiliary loss (in the code it's simply a copy of the normal model loss).
+  Two models in the given repository did properly implement an auxiliary loss, one of
+  which did not use Xception as a base model and hence does not match the paper, the other
+  was so large that our computation resources were insufficient without sacrificing on
+  batch size. We have implemented an auxiliary loss on the '\_small' model ourselves and
+  noticed a decrease in performance, see below. We are unsure whether auxiliary loss has
+  actually been used for the results in the paper.
+- Not all hyperparameters are fully specified in the paper, most noticeably the exact
+  number of epochs and what type of polynomial scheduling was used. The default number of
+  epochs is 500 in the repository (the paper mentions 30k iterations, which would be
+  around 15 epochs). This adds to the reasons (as above) we have to believe that the
+  defaults in the repository are not necessarily what's been used for the results in the
+  paper.
+- The given event data has already been processed, simply supplied as _.npy_ files. The
+  code for the pre-processing steps is not included in the given repository. This means
+  that the time used for differences in the event data (the 50ms, 250ms, ...) in the table
+  above is not fully reproducible. We are assuming that 50ms is used for the given event
+  data.
+- The authors are unclear about how they integrated grayscale and event data for the final
+  row in the table above.
+- The given 'best' weights in the repository do not actually result in the given results
+  in the paper, the accuracy and mIoU with just inference over those given weights are
+  significantly lower.
+- No learning curves are supplied in the paper, only final outcomes. Given that there are
+  some things that are unclear or confusing in the paper, having learning curves could
+  have helped to see whether we're on the right track with the model used for the results
+  in the paper.
+
+There were also issues from our side:
+
+- Computation resources were limited, which meant we weren't able to use the bigger models
+  in the repository with the given batch size. Again, we are unsure what model has
+  actually been used as the authors don't provide a detailed description.
+- Related to this, we did not manage to get Google Colab to work with the given credits.
 
 ## References
 
@@ -203,3 +239,9 @@ cameras_. 2018. URL: [https://arxiv.org/abs/1811.12039](https://arxiv.org/abs/18
 
 [^2]: F. Chollet. Xception: Deep learning with depthwise separable convolutions. 2017 IEEE
 Conference on Computer Vision and Pattern Recognition (CVPR), pages 1800–1807, 2017.
+
+[^3]:  Iñigo Alonso and Ana C. Murillo.
+[EV-SegNet Repository](https://github.com/Shathe/Ev-SegNet.git)
+
+[^4]: Roy Vorster. 
+[Reproduction EV-SegNet Repository](https://github.com/RoyVorster/Ev-SegNet.git)
