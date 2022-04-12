@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 # f_name = '2022-04-10-20-16-57' # 5 epochs 50% data
 f_name = '2022-04-10-22-41-57' # 5 epochs 10% data V2
 f_name = '2022-04-11-10-41-47' # 10 epochs 10% data small with aux loss
+f_name = '2022-04-11-14-01-36' # 25 epochs 10% data small with aux loss
+f_name = '2022-04-11-19-41-51' # 25 epochs 25% data small with aux loss
+f_name = '2022-04-12-14-42-24' # 15 epochs 100% data small with aux loss
 
 dat_train = np.loadtxt(f_name + '_train.txt')
 dat_test = np.loadtxt(f_name + '_test.txt')
