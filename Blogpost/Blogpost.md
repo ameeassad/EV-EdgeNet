@@ -37,7 +37,9 @@ snapshots in time. The bottom row are the event-based representations of the top
 the first timestep, no changes are noted. At the second step, once the star has moved,
 some receptors observe a _change_ in intensity.
 
-![](event_cam_fig.png)
+<p align="center">
+<img src="event_cam_fig.png" title="example" width="400"/>
+</p>
 
 Important to note is that this representation of event-based images already show a certain
 interpretation of the event data! In fact, data from event-based cameras can hardly be
@@ -121,7 +123,7 @@ the per-pixel cross-entropy loss to optimize the model.
 | Grayscale image      | 94.67           | 64.98       | 94.67           | 64.98      | 94.67            | 64.98        |
 | Combined             | 95.22           | 68.36       | 95.18           | 67.95      | 95.29            | 68.26        |
 
-An example of the segmentation result for three different event integration intervals: 
+An example of the segmentation result for three different event integration intervals:
 10ms, 50ms and 250ms:
 ![](results.png)
 
@@ -162,7 +164,7 @@ compatability functions which operate identically to the older functions from te
 ### Using a SOTA SegNet for generating labels
 
 The model used in the original work to generate ground truths has been surpassed by higher
-accuracy pre-trained models. We elected to use a newer 'pspnet_101' model trained on 
+accuracy pre-trained models. We elected to use a newer 'pspnet_101' model trained on
 cityscapes, to see
 whether the model was somehow very sensitive to intricacies due to the original model used
 to generate segmentation images. This newer model was trained to generate more than 6
@@ -219,9 +221,9 @@ insufficient information, namely:
 - The given event data has already been processed, simply supplied as _.npy_ files. The
   code for the pre-processing steps is not included in the given repository. This means
   that the time used for differences in the event data (the 50ms, 250ms, ...) in the table
-  above is not fully reproducible. Although it is given in the paper that the model 
-  was trained on event data with integration intervals of 50ms, they also mention that 
-  it was tested on 10ms, 50ms and 250ms, but neglect to specify which test data 
+  above is not fully reproducible. Although it is given in the paper that the model
+  was trained on event data with integration intervals of 50ms, they also mention that
+  it was tested on 10ms, 50ms and 250ms, but neglect to specify which test data
   corresponds to which intervals.
 - The authors are unclear about how they integrated grayscale and event data for the final
   row in the table above.
@@ -265,12 +267,10 @@ the performance on the new test labels as a measure of how robust the method is.
 
 [^1]: Iñigo Alonso and Ana C. Murillo. _Ev-segnet: Semantic segmentation for event-based
 cameras_. 2018. URL: [https://arxiv.org/abs/1811.12039](https://arxiv.org/abs/1811.12039)
-
 [^2]: F. Chollet. Xception: Deep learning with depthwise separable convolutions. 2017 IEEE
 Conference on Computer Vision and Pattern Recognition (CVPR), pages 1800–1807, 2017.
-
-[^3]:  Iñigo Alonso and Ana C. Murillo.
+[^3]: Iñigo Alonso and Ana C. Murillo.
 [EV-SegNet Repository](https://github.com/Shathe/Ev-SegNet.git)
-
 [^4]: Roy Vorster.
-[Reproduction EV-SegNet Repository](https://github.com/RoyVorster/Ev-SegNet.git)
+[Reproduction EV-SegNet Repository](https://github.com/RoyVorster/Ev-SegNet.git)_
+
