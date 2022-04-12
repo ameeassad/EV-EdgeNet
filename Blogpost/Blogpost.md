@@ -163,7 +163,15 @@ The model used in the original work to generate ground truths has been surpassed
 accuracy pre-trained models. We elected to use a newer model trained on cityscapes, to see
 whether the model was somehow very sensitive to intricacies due to the original model used
 to generate segmentation images. This newer model was trained to generate more than 6
-classes, we grouped certain classes together to match the 6 classes used in the paper.
+classes, we grouped certain classes together to match the 6 classes used in the paper. The
+following labels were merged:
+
+* _road_ and _sidewalk_ into _**flat**_
+* _building, wall, fence_ and _sky_ into _**background**_
+* _pole, traffic light_ and _traffic sign_ into _**object**_
+* _vegetation_ and _terrain_ into _**vegetation**_
+* _person_ and _rider_ into _**human**_
+* _car, truck, bus, train, motorcycle_ and _bicycle_ into _**vehicle**_
 
 ### Results
 
@@ -234,20 +242,19 @@ predicted labels from the pretrained model. This was easier said than done howev
 a bit of investigating showed that some 30-ish classes are defined for segmentation tasks
 for driving scenery. Most applications, including the pretrained model, seem to use only
 19 of those, but often disregard documenting which classes exactly. EV-SegNet then was
-trained on only 6 classes, but at least mentions - albeit in passing - the categories (and
-their subclasses) that were merged into their 6. The challenge was now to identify the 19
-classes used by the pretrained model. After a search on the internet, an Xception-based
-application was found, using 19 classes and miraculously specifying their counterparts in
-the extensive 30 classes. Validating whether these 19 were in fact the ones used for the
-pretrained model was achieved by visual inspection of the generated segmentations. The
-newly generated and merged 6-class-labels are thus responsible estimates at best.
+trained to only classify 6 classes, but at least mentions - albeit in passing - the
+categories (and their subclasses) that were merged into their 6. The challenge was now to
+identify the 19 classes used by the pretrained model. As it happens, in EV-SegNet's
+`get_segmentation`[^3] 19 training labels are identified. Validating whether these 19 were
+in fact also the ones used for the pretrained model was achieved by visual inspection of
+the generated segmentations. The newly generated and merged 6-class-labels are thus
+estimates at best.
 
-Also, since we did not have the time to generate new ground truth labels for the 
-entire 15.000-ish training samples (due to our computational limits mentioned above), 
-we only labeled the testset. Of course that means that there is a risk of a high 
-disconnect between what the model is trained for and what it is tested on. At most, we 
-can consider the performance on the new test labels as a measure of how robust the 
-method is.
+Also, since we did not have the time to generate new ground truth labels for the entire
+15.000 training samples (due to our computational limits mentioned above), we only
+re-labeled the testset. Of course that means that there is a risk of a high disconnect
+between what the model is trained for and what it is tested on. At most, we can consider
+the performance on the new test labels as a measure of how robust the method is.
 
 ## References
 
