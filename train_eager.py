@@ -36,7 +36,6 @@ def train(loader, model, epochs=15, batch_size=8, show_loss=True, augmenter=None
                 [x, y, mask] = convert_to_tensors([x, y, mask])
 
                 y_, aux_y_ = model(x, training=True, aux_loss=True)  # get output of the model
-
                 loss = tf.compat.v1.losses.softmax_cross_entropy(y, y_, weights=mask)  # compute loss
 
                 total_loss_m += loss
@@ -47,7 +46,8 @@ def train(loader, model, epochs=15, batch_size=8, show_loss=True, augmenter=None
 
                 total_loss += loss
 
-                if show_loss: print('Training loss: ' + str(loss.numpy()))
+                if show_loss:
+                    print('Training loss: ' + str(loss.numpy()))
 
             # Gets gradients and applies them
             grads = g.gradient(loss, variables_to_optimize)
@@ -142,17 +142,17 @@ if __name__ == "__main__":
     # Init models (optional, just for get_params function)
     init_model(model, input_shape=(batch_size, width, height, channels))
 
-    variables_to_restore = model.variables #[x for x in model.variables if 'block1_conv1' not in x.name]
-    variables_to_save = model.variables
-    variables_to_optimize = model.variables
-
     # Init saver. can use also ckpt = tfe.Checkpoint((model=model, optimizer=optimizer,learning_rate=learning_rate, global_step=global_step)
+    variables_to_save = model.variables
     saver_model = tf.compat.v1.train.Saver(var_list=variables_to_save)
+    variables_to_restore = model.variables #[x for x in model.variables if 'block1_conv1' not in x.name]
     restore_model = tf.compat.v1.train.Saver(var_list=variables_to_restore)
 
     # # restore if model saved and show number of params
     restore_state(restore_model, name_best_model)
     get_params(model)
+
+    variables_to_optimize = model.variables
 
     if epochs > 0:
         train(loader=loader, model=model, epochs=epochs, batch_size=batch_size, augmenter='segmentation', lr=learning_rate,
@@ -161,8 +161,8 @@ if __name__ == "__main__":
 
     # Test best model
     print('Testing model')
-    test_acc, test_miou = get_metrics(loader, model, loader.n_classes, train=False, flip_inference=False, scales=[1],
-                                      write_images=False, preprocess_mode=None, n_samples_max=100)
+    test_acc, test_miou = get_metrics(loader, model, loader.n_classes, train=True, flip_inference=False, scales=[1],
+                                      write_images=True, preprocess_mode=None, n_samples_max=10)
     print('Test accuracy: ' + str(test_acc.numpy()))
     print('Test miou: ' + str(test_miou))
 
