@@ -121,11 +121,13 @@ the per-pixel cross-entropy loss to optimize the model.
 | Grayscale image      | 94.67           | 64.98       | 94.67           | 64.98      | 94.67            | 64.98        |
 | Combined             | 95.22           | 68.36       | 95.18           | 67.95      | 95.29            | 68.26        |
 
+An example of the segmentation result for three different event integration intervals: 
+10ms, 50ms and 250ms:
 ![](results.png)
 
 ## Reproduction
 
-The goal of our reproduction is to attempt to make their method robust for the future:
+The goal of our reproduction[^4] is to attempt to make their method robust for the future:
 back in 2018, Alonso and Murillo built their method on Python 2.7 and TensorFlow 1.11
 structures. We attempted to adapt their code[^3] to be compatible with Python 3.x and
 TensorFlow 2.7. The model was then trained from scratch, using the data provided with the
@@ -160,7 +162,8 @@ compatability functions which operate identically to the older functions from te
 ### Using a SOTA SegNet for generating labels
 
 The model used in the original work to generate ground truths has been surpassed by higher
-accuracy pre-trained models. We elected to use a newer model trained on cityscapes, to see
+accuracy pre-trained models. We elected to use a newer 'pspnet_101' model trained on 
+cityscapes, to see
 whether the model was somehow very sensitive to intricacies due to the original model used
 to generate segmentation images. This newer model was trained to generate more than 6
 classes, we grouped certain classes together to match the 6 classes used in the paper. The
@@ -216,8 +219,10 @@ insufficient information, namely:
 - The given event data has already been processed, simply supplied as _.npy_ files. The
   code for the pre-processing steps is not included in the given repository. This means
   that the time used for differences in the event data (the 50ms, 250ms, ...) in the table
-  above is not fully reproducible. We are assuming that 50ms is used for the given event
-  data.
+  above is not fully reproducible. Although it is given in the paper that the model 
+  was trained on event data with integration intervals of 50ms, they also mention that 
+  it was tested on 10ms, 50ms and 250ms, but neglect to specify which test data 
+  corresponds to which intervals.
 - The authors are unclear about how they integrated grayscale and event data for the final
   row in the table above.
 - The given 'best' weights in the repository do not actually result in the given results
@@ -241,7 +246,7 @@ As we mentioned before, generating new labels for the testset required merging s
 predicted labels from the pretrained model. This was easier said than done however:
 a bit of investigating showed that some 30-ish classes are defined for segmentation tasks
 for driving scenery. Most applications, including the pretrained model, seem to use only
-19 of those, but often disregard documenting which classes exactly. EV-SegNet then was
+19 of those, but often neglect documenting which classes exactly. EV-SegNet then was
 trained to only classify 6 classes, but at least mentions - albeit in passing - the
 categories (and their subclasses) that were merged into their 6. The challenge was now to
 identify the 19 classes used by the pretrained model. As it happens, in EV-SegNet's
