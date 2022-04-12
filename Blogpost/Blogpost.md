@@ -57,7 +57,9 @@ application. In the example below (obtained from
 the [CityScapes Dataset](https://www.cityscapes-dataset.com/examples/)), the classes could
 be _car_ (blue), _cyclist_ (red) and _road_ (light purple) among others.
 
-![](segment_example.png)
+<p align="center">
+<img src="segment_example.png" width="500"/>
+</p>
 
 ## Original method
 
@@ -72,7 +74,9 @@ on the events that took place during some time interval containing _t<sub>i</sub
 As a reference, this image aims to clarify the concept: A white pixel conveys the absence
 of a datapoint (i.e. no event was recorded at that time, at that location).
 
-![](event_encoding_basic.png)
+<p align="center">
+<img src="event_encoding_basic.png" width="500"/>
+</p>
 
 The nature of the information in a pixel varies from method to method, for example one
 could take the integral of the events in the time interval. Additionally, different kinds
@@ -86,7 +90,9 @@ interval, summing them together. Second is the mean of all events in the time in
 third the standard variation. These three methods all split the information into a
 positive and a negative channel, resulting in 6 channels.
 
-![](event_encoding_6channels.png)
+<p align="center">
+<img src="event_encoding_6channels.png" width="600"/>
+</p>
 
 Please note that the colours in the figure are only meant to signify the various channels,
 they do not convey actual values, nor are the channels interpreted as colours in the
@@ -125,7 +131,10 @@ the per-pixel cross-entropy loss to optimize the model.
 
 An example of the segmentation result for three different event integration intervals:
 10ms, 50ms and 250ms:
-![](results.png)
+
+<p align="center">
+<img src="results.png" width="600"/>
+</p>
 
 ## Reproduction
 
