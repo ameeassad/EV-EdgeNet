@@ -116,7 +116,7 @@ the per-pixel cross-entropy loss to optimize the model.
 ### Their results
 
 | Input                | Accuracy (50ms) | MIoU (50ms) | Accuracy (10ms) | MIoU (10ms | Accuracy (250ms) | MIoU (250ms) |
-| -------------------- | --------------- | ----------- | --------------- | ---------- | ---------------- | ------------ |
+|----------------------|-----------------|-------------|-----------------|------------|------------------|--------------|
 | Event representation | 89.76           | 54.81       | 86.46           | 45.85      | 87.72            | 47.56        |
 | Grayscale image      | 94.67           | 64.98       | 94.67           | 64.98      | 94.67            | 64.98        |
 | Combined             | 95.22           | 68.36       | 95.18           | 67.95      | 95.29            | 68.26        |
@@ -165,11 +165,6 @@ whether the model was somehow very sensitive to intricacies due to the original 
 to generate segmentation images. This newer model was trained to generate more than 6
 classes, we grouped certain classes together to match the 6 classes used in the paper.
 
-<!-- The Xception model used in the original work, has also been surpassed by better models. 
-Which is why we made the decision to use a newer model which was already pretrained on the cityscapes dataset.
-The only problem however is that this model uses more classes than the six classes used by the Xception model. 
-Thus we opted to group certain classes together to arrive back at six classes. The following classes were grouped together: TODO -->
-
 ### Results
 
 ## Reflection
@@ -190,11 +185,11 @@ Several issues were encountered in the reproduction process which are caused by
 insufficient information, namely:
 
 - The authors did not specify the exact network architecture in the paper, noting only
-  that an Xception encoder is used and that a 'light decoder' is built, 'concentrating the
-  heavy computation on the encoder'. The repository from the paper's authors includes
-  multiple architectures. The model 'Segception\_small' is used by default, but there are
-  reasons to believe why the default in the code is not necessarily the model that was
-  used in the paper, see below.
+  that an Xception encoder is used and that a 'light decoder' is built,
+  _"concentrating the heavy computation on the encoder"_. The repository from the paper's
+  authors includes multiple architectures. The model 'Segception\_small' is used by
+  default, but there are reasons to believe why the default in the code is not necessarily
+  the model that was used in the paper, see below.
 - The paper references using auxiliary loss during training, this is a common method to
   combat vanishing gradients in deep models. The '\_small' model however does not properly
   implement an auxiliary loss (in the code it's simply a copy of the normal model loss).
@@ -232,6 +227,28 @@ There were also issues from our side:
   actually been used as the authors don't provide a detailed description.
 - Related to this, we did not manage to get Google Colab to work with the given credits.
 
+### Value of new test labels
+
+As we mentioned before, generating new labels for the testset required merging some
+predicted labels from the pretrained model. This was easier said than done however:
+a bit of investigating showed that some 30-ish classes are defined for segmentation tasks
+for driving scenery. Most applications, including the pretrained model, seem to use only
+19 of those, but often disregard documenting which classes exactly. EV-SegNet then was
+trained on only 6 classes, but at least mentions - albeit in passing - the categories (and
+their subclasses) that were merged into their 6. The challenge was now to identify the 19
+classes used by the pretrained model. After a search on the internet, an Xception-based
+application was found, using 19 classes and miraculously specifying their counterparts in
+the extensive 30 classes. Validating whether these 19 were in fact the ones used for the
+pretrained model was achieved by visual inspection of the generated segmentations. The
+newly generated and merged 6-class-labels are thus responsible estimates at best.
+
+Also, since we did not have the time to generate new ground truth labels for the 
+entire 15.000-ish training samples (due to our computational limits mentioned above), 
+we only labeled the testset. Of course that means that there is a risk of a high 
+disconnect between what the model is trained for and what it is tested on. At most, we 
+can consider the performance on the new test labels as a measure of how robust the 
+method is.
+
 ## References
 
 [^1]: Iñigo Alonso and Ana C. Murillo. _Ev-segnet: Semantic segmentation for event-based
@@ -243,5 +260,5 @@ Conference on Computer Vision and Pattern Recognition (CVPR), pages 1800–1807,
 [^3]:  Iñigo Alonso and Ana C. Murillo.
 [EV-SegNet Repository](https://github.com/Shathe/Ev-SegNet.git)
 
-[^4]: Roy Vorster. 
+[^4]: Roy Vorster.
 [Reproduction EV-SegNet Repository](https://github.com/RoyVorster/Ev-SegNet.git)
