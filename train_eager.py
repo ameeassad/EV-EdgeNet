@@ -162,11 +162,7 @@ if __name__ == "__main__":
     # Test best model
     print('Testing model')
     loader.suffle_segmentation()
-    test_acc, test_miou = get_metrics(loader, model, loader.n_classes, train=False, flip_inference=False, scales=[1],
-                                      write_images=True, preprocess_mode=None, n_samples_max=100)
+    test_acc, test_miou = get_metrics(loader, model, loader.n_classes, train=True, flip_inference=True, scales=[0.75, 1, 1.5],
+                                      write_images=True, preprocess_mode=None, n_samples_max=5)
     print('Test accuracy: ' + str(test_acc.numpy()))
     print('Test miou: ' + str(test_miou))
-
-    #train_acc, train_miou = get_metrics(loader, model, loader.n_classes, train=True, preprocess_mode=preprocess_mode)
-    #print('Train accuracy: ' + str(train_acc.numpy()))
-    #print('Train miou: ' + str(train_miou))
