@@ -1,6 +1,10 @@
 # A Reproduction of EV-SegNet: Semantic Segmentation for Event-based Cameras
 
 <b><i>
+Rafaël Beckers r.m.a.beckers@student.tudelft.nl(4854446), Evert de Vroey e.devroey@student.tudelft.nl(4685156), Roy Vorster r.vorster@student.tudelft.nl(4556720)
+<b><i>
+
+<b><i>
 In 2018, a method was proposed by Iñigo Alonso and Ana C. Murillo for the semantic
 segmentation of scenes from the DDD17 dataset (DAVIS Driving Dataset). Semantic
 segmentation (i.e. labelling different types of objects in an image) of street scenes had
