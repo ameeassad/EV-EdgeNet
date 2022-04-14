@@ -364,6 +364,10 @@ the new test labels as a measure of how robust the method is.
 
 **Results on the new test set, do the (poor) results generalize?**
 
+We've already seen that the trained model started to overfit on the training data and that we achieved comparably poor results on the testing data (around 30% mIoU), with the limited number of testing labels that we did generate, we are getting similar mIoU values.
+
+_Given our inability to properly reproduce results from the paper and the amount of time we spent trying various things on the given dataset, we did not have time to do this properly, including training on new ground truths (see above). The value of these results has also gone down now that we are unable to get good results at all._
+
 ## Formalities
 
 This reproduction was performed in the context of Delft University of Technology's course
