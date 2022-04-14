@@ -249,22 +249,33 @@ training with 100% data and a proper auxiliary loss as described in the paper.
 
 **Using the pre-trained model from the authors**
 
-Using the pre-trained model in the repository, which the authors state should be able to 'replicate results' [^3] does not get the expected results. On a limited test set of 500 samples, we achieve an accuracy of ~20% and a mean intersection-over-union (mIoU) of under 5%. The resulting segmentation images naturally do not represent the labels at all:
+Using the pre-trained model in the repository, which the authors state should be able to '
+replicate results' [^3] does not get the expected results. On a limited test set of 500
+samples, we achieve an accuracy of ~20% and a mean intersection-over-union (mIoU) of under
+5%. The resulting segmentation images naturally do not represent the labels at all:
 
 <div display="flex" align="center">
   <img src="pretrained_label.png" width="350"/>
   <img src="pretrained_output.png" width="350"/> 
 </div>
 
-**Training the model ourself with- and without auxiliary loss**
+**Training the model ourselves with- and without auxiliary loss**
 
-At first, we trained the model using the defaults in the repository, this resulted in an accuracy of around 85% and an mIoU of around 30%. This model was trained without auxiliary loss (which, as mentioned, was not implemented in the code base but is mentioned in the paper) and uses 25% of the training samples (500 samples) for 50 epochs (25k iterations), see below loss curves:
+At first, we trained the model using the defaults in the repository, this resulted in an
+accuracy of around 85% and an mIoU of around 30%. This model was trained without auxiliary
+loss (which, as mentioned, was not implemented in the code base but is mentioned in the
+paper) and uses 25% of the training samples (500 samples) for 50 epochs (25k iterations),
+see below loss curves:
 
 <p align="center">
     <img src="2022-04-10-14-21-30_plot.png" width="600"/>
 </p>
 
-Naturally this model uses less iterations than prescribed in the paper, less training samples and does not use auxiliary loss. We first implemented an auxiliary loss properly and reran training for 25 epochs with 10% and 25% of the training data, to evaluate to what extent adding training samples improved performance. This resulted in the following loss curves for 10% and 25%, respectively:
+Naturally this model uses less iterations than prescribed in the paper, less training
+samples and does not use auxiliary loss. We then implemented an auxiliary loss properly
+and reran training for 25 epochs with 10% and 25% of the training data, to evaluate to
+what extent adding training samples improved performance. This resulted in the following
+loss curves for 10% and 25%, respectively:
 
 <p align="center">
     <img src="2022-04-11-14-01-36_plot.png" width="600"/>
@@ -287,27 +298,46 @@ curves:
     <img src="2022-04-12-14-42-24_merge_plot.png" width="600"/>
 </p>
 
-Notice that the final performance is only marginally better on the test set than our results for 25% of the training data. One thing we did notice at this point is that the accuracy and mIoU on the training set are increasing as the number of epochs goes up, resulting in segmentation outputs that start to visually resemble the given labels on the training set. The label is the left image, the model output is on the right.
+Notice that the final performance is only marginally better on the test set than our
+results for 25% of the training data. One thing we did notice at this point is that the
+accuracy and mIoU on the training set are increasing as the number of epochs goes up,
+resulting in segmentation outputs that start to visually resemble the given labels on the
+training set. The label is the left image, the model output is on the right.
 
 <div display="flex" align="center">
   <img src="label.png" width="350"/>
   <img src="train_output.png" width="350"/> 
 </div>
 
-Clearly, then, the fact that we are using the 'segception\_small' (because, as mentioned, which of the models is actually used is not clear from the paper) from the repository is not a large problem as the model is complex enough to start overfitting on the training data. Increasing model complexity might not get us better results on the test set.
+Clearly, then, the fact that we are using the 'segception\_small' (because, as mentioned,
+it is not clear from the paper which of the models is actually used) from the repository is
+not a large problem as the model is complex enough to start overfitting on the training
+data. Increasing model complexity might not get us better results on the test set.
 
 **Training times**
 
-The authors provide no information regarding hardware used for training and the required training time. A single iteration took around 1.1s on an M1 Macbook Pro with Metal acceleration, resulting in training time of around 19 hours for the 60k iterations above.
+The authors provide no information regarding hardware used for training and the required
+training time. A single iteration took around 1.1s on an M1 Macbook Pro with Metal
+acceleration, resulting in training time of around 19 hours for the 60k iterations above.
 
 **Reproduction conclusion**
 
-In conclusion, we are not able to replicate the results from the authors on multiple fronts:
-- Inference on the pre-trained weights supplied by the authors does not result in the figures presented in the paper.
-- Training the model ourselves does not result in the figures presented in the paper. Even when trying to train for longer than the authors prescribe or adding a proper auxiliary loss as the authors also describe in the paper.
-- Event data with different time constants is not supplied, nor is the pre-processing code, hence we simply are not able to replicate these results using this codebase without writing fairly complex event-camera data processing code ourselves. Even in that case, the raw data was not provided by the authors.
+In conclusion, we are not able to replicate the results from the authors on multiple
+fronts:
 
-We are unsure where this discrepancy is coming from. The codebase is largely the same, apart from optional changes (i.e. aux loss, less training samples, etc...) or compatibility changes. The dataset is the same as the author's used as well.
+- Inference on the pre-trained weights supplied by the authors does not result in the
+  figures presented in the paper.
+- Training the model ourselves does not result in the figures presented in the paper. Even
+  when trying to train for longer than the authors prescribe or adding a proper auxiliary
+  loss as the authors also describe in the paper.
+- Event data with different time constants is not supplied, nor is the pre-processing
+  code, hence we simply are not able to replicate these results using this codebase
+  without writing fairly complex event-camera data processing code ourselves. Even in that
+  case, the raw data was not provided by the authors.
+
+We are unsure where this discrepancy is coming from. The codebase is largely the same,
+apart from optional changes (i.e. aux loss, less training samples, etc...) or
+compatibility changes. The dataset is the same as the author's used as well.
 
 <!-- Naturally, there could be mistakes from our side in this reproduction. However, we've largely kept the existing codebase with only optional modifications (i.e. less training samples, better image output, aux loss) or compatibility modifications as well as the author's dataset. We are unsure where the discrepancy between our results and the author's results is coming from. -->
 
@@ -326,20 +356,19 @@ in fact also the ones used for the pretrained model was achieved by visual inspe
 the generated segmentations. The newly generated and merged 6-class-labels are thus
 estimates at best.
 
-Also, since we did not have the time to generate new ground truth labels for all
-15k training samples (due to our computational limits mentioned above), we only
-re-labeled the testset. Of course that means that there is a risk of a high disconnect
-between what the model is trained for and what it is tested on. At most, we can consider
-the performance on the new test labels as a measure of how robust the method is.
+Also, since we did not have the time to generate new ground truth labels for all 15k
+training samples (due to our computational limits mentioned above), we only re-labeled the
+testset. Of course that means that there is a risk of a high disconnect between what the
+model is trained for and what it is tested on. At most, we can consider the performance on
+the new test labels as a measure of how robust the method is.
 
 **Results on the new test set, do the (poor) results generalize?**
-
 
 ## Formalities
 
 This reproduction was performed in the context of Delft University of Technology's course
-on Deep Learning (CS4240, 2022 Q3). Our team consisted of three members: Rafaël Beckers, Evert De Vroey and
-Roy Vorster.
+on Deep Learning (CS4240, 2022 Q3). Our team consisted of three members: Rafaël Beckers,
+Evert De Vroey and Roy Vorster.
 
 Both Rafaël and Roy were mainly responsible for the technical aspects of this
 reproduction: adapting the original code to be compatible with modern methods. In
