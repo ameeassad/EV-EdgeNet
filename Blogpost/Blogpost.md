@@ -261,17 +261,17 @@ Using the pre-trained model in the repository, which the authors state should be
 At first, we trained the model using the defaults in the repository, this resulted in an accuracy of around 85% and an mIoU of around 30%. This model was trained without auxiliary loss (which, as mentioned, was not implemented in the code base but is mentioned in the paper) and uses 25% of the training samples (500 samples) for 50 epochs (25k iterations), see below loss curves:
 
 <p align="center">
-    <img src="2022-04-10-14-21-30_plot.png" width="500"/>
+    <img src="2022-04-10-14-21-30_plot.png" width="600"/>
 </p>
 
 Naturally this model uses less iterations than prescribed in the paper, less training samples and does not use auxiliary loss. We first implemented an auxiliary loss properly and reran training for 25 epochs with 10% and 25% of the training data, to evaluate to what extent adding training samples improved performance. This resulted in the following loss curves for 10% and 25%, respectively:
 
 <p align="center">
-    <img src="2022-04-11-14-01-36_plot.png" width="500"/>
+    <img src="2022-04-11-14-01-36_plot.png" width="600"/>
 </p>
 
 <p align="center">
-    <img src="2022-04-11-19-41-51_plot.png" width="500"/>
+    <img src="2022-04-11-19-41-51_plot.png" width="600"/>
 </p>
 
 Note that training with 25% of the training samples did result in marginally better test
@@ -284,7 +284,7 @@ twice as much as the authors claim in the paper, which resulted in the following
 curves:
 
 <p align="center">
-    <img src="2022-04-12-14-42-24_merge_plot.png" width="500"/>
+    <img src="2022-04-12-14-42-24_merge_plot.png" width="600"/>
 </p>
 
 Notice that the final performance is only marginally better on the test set than our results for 25% of the training data. One thing we did notice at this point is that the accuracy and mIoU on the training set are increasing as the number of epochs goes up, resulting in segmentation outputs that start to visually resemble the given labels on the training set. The label is the left image, the model output is on the right.
