@@ -252,8 +252,8 @@ training with 100% data and a proper auxiliary loss as described in the paper.
 Using the pre-trained model in the repository, which the authors state should be able to 'replicate results' [^3] does not get the expected results. On a limited test set of 500 samples, we achieve an accuracy of ~20% and a mean intersection-over-union (mIoU) of under 5%. The resulting segmentation images naturally do not represent the labels at all:
 
 <div display="flex" align="center">
-  <img src="pretrained_label.png" width="200"/>
-  <img src="pretrained_output.png" width="200"/> 
+  <img src="pretrained_label.png" width="350"/>
+  <img src="pretrained_output.png" width="350"/> 
 </div>
 
 **Training the model ourself with- and without auxiliary loss**
@@ -290,8 +290,8 @@ curves:
 Notice that the final performance is only marginally better on the test set than our results for 25% of the training data. One thing we did notice at this point is that the accuracy and mIoU on the training set are increasing as the number of epochs goes up, resulting in segmentation outputs that start to visually resemble the given labels on the training set. The label is the left image, the model output is on the right.
 
 <div display="flex" align="center">
-  <img src="label.png" width="200"/>
-  <img src="train_output.png" width="200"/> 
+  <img src="label.png" width="350"/>
+  <img src="train_output.png" width="350"/> 
 </div>
 
 Clearly, then, the fact that we are using the 'segception\_small' (because, as mentioned, which of the models is actually used is not clear from the paper) from the repository is not a large problem as the model is complex enough to start overfitting on the training data. Increasing model complexity might not get us better results on the test set.
