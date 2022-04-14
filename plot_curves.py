@@ -9,6 +9,8 @@ f_name = '2022-04-11-10-41-47' # 10 epochs 10% data small with aux loss
 f_name = '2022-04-11-14-01-36' # 25 epochs 10% data small with aux loss
 f_name = '2022-04-11-19-41-51' # 25 epochs 25% data small with aux loss
 f_name = '2022-04-12-14-42-24' # 15 epochs 100% data small with aux loss
+f_name = '2022-04-13-00-50-56' # 15 epochs 100% continuation data small with aux loss
+f_name = '2022-04-12-14-42-24_merge' # concatenation of above 2
 
 dat_train = np.loadtxt(f_name + '_train.txt')
 dat_test = np.loadtxt(f_name + '_test.txt')
