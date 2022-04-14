@@ -174,11 +174,10 @@ compatability functions which operate identically to the older functions from te
 
 The model used in the original work to generate ground truths has been surpassed by higher
 accuracy pre-trained models. We elected to use a newer 'pspnet_101' model trained on
-cityscapes, to see
-whether the model was somehow very sensitive to intricacies due to the original model used
-to generate segmentation images. This newer model was trained to generate more than 6
-classes, we grouped certain classes together to match the 6 classes used in the paper. The
-following labels were merged:
+cityscapes, to see whether the model was somehow very sensitive to intricacies due to the
+original model used to generate segmentation images. This newer model was trained to
+generate more than 6 classes, we grouped certain classes together to match the 6 classes
+used in the paper. The following labels were merged:
 
 * _road_ and _sidewalk_ into _**flat**_
 * _building, wall, fence_ and _sky_ into _**background**_
@@ -216,32 +215,37 @@ insufficient information, namely:
 - The given event data has already been processed, simply supplied as _.npy_ files. The
   code for the pre-processing steps is not included in the given repository. This means
   that the time used for differences in the event data (the 50ms, 250ms, ...) in the table
-  above is not fully reproducible with supplied code. Although it is given in the paper that the model
-  was trained on event data with integration intervals of 50ms, they also mention that
-  it was tested on 10ms, 50ms and 250ms, but neglect to specify which test data
-  corresponds to which intervals.
+  above is not fully reproducible with supplied code. Although it is given in the paper
+  that the model was trained on event data with integration intervals of 50ms, they also
+  mention that it was tested on 10ms, 50ms and 250ms, but neglect to specify which test
+  data corresponds to which intervals.
 - The authors are unclear about how they integrated grayscale and event data for the final
   row in the table above.
 - The given 'best' weights in the repository do not actually result in the given results
   in the paper, the accuracy and mIoU with just inference over those given weights are
   significantly lower. Refer to the results.
 - No learning curves are presented in the paper, only final outcomes. Given that there are
-  some things that are unclear or, having reference learning curves could
-  have helped to see whether we're on the right track with the model used for the results
-  in the paper.
+  some things that are unclear or, having reference learning curves could have helped to
+  see whether we're on the right track with the model used for the results in the paper.
 
 There were also issues from our side:
 
 - Computation resources were limited, which meant we weren't able to use the bigger models
-  in the repository with the given batch size (limited by video memory). Again, we are unsure what model has
-  actually been used as the authors don't provide a detailed description.
+  in the repository with the given batch size (limited by video memory). Again, we are
+  unsure what model has actually been used as the authors don't provide a detailed
+  description.
 - Related to this, we did not manage to get Google Colab to work with the given credits.
 
-
 ### Results
-As explained, the codebase has been updated to match up-to-date frameworks and tooling, several other modifications have been made to allow more parameterization, fix several bugs/annoyances and get model storing/saving to work properly. Please review the commit history in the fork [^4] for more info.
 
-We will first present results using the given pre-trained model from the authors. Then present results from our own training with varying amounts of data, and then from our own training with 100% data and a proper auxiliary loss as described in the paper.
+As explained, the codebase has been updated to match up-to-date frameworks and tooling,
+several other modifications have been made to allow more parameterization, fix several
+bugs/annoyances and get model storing/saving to work properly. Please review the commit
+history in the fork [^4] for more info.
+
+We will first present results using the given pre-trained model from the authors. Then
+present results from our own training with varying amounts of data, and then from our own
+training with 100% data and a proper auxiliary loss as described in the paper.
 
 **Using the pre-trained model from the authors**
 
@@ -270,9 +274,14 @@ Naturally this model uses less iterations than prescribed in the paper, less tra
     <img src="2022-04-11-19-41-51_plot.png" width="500"/>
 </p>
 
-Note that training with 25% of the training samples did result in marginally better test accuracy and mIoU, as well as increased stability during training. Although the accuracies are fairly close to the author's results, the mIoU is significantly lower, this still results in segmentation labels with little value.
+Note that training with 25% of the training samples did result in marginally better test
+accuracy and mIoU, as well as increased stability during training. Although the accuracies
+are fairly close to the author's results, the mIoU is significantly lower, this still
+results in segmentation labels with little value.
 
-Finally, we trained with 100% of the training samples for 30 epochs, so 60k iterations, twice as much as the authors claim in the paper, which resulted in the following loss curves:
+Finally, we trained with 100% of the training samples for 30 epochs, so 60k iterations,
+twice as much as the authors claim in the paper, which resulted in the following loss
+curves:
 
 <p align="center">
     <img src="2022-04-12-14-42-24_merge_plot.png" width="500"/>
@@ -326,7 +335,6 @@ the performance on the new test labels as a measure of how robust the method is.
 **Results on the new test set, do the (poor) results generalize?**
 
 
-
 ## Formalities
 
 This reproduction was performed in the context of Delft University of Technology's course
@@ -334,8 +342,11 @@ on Deep Learning (CS4240, 2022 Q3). Our team consisted of three members: Rafaël
 Roy Vorster.
 
 Both Rafaël and Roy were mainly responsible for the technical aspects of this
-reproduction: adapting the original code to be compatible with modern methods. Evert was
-mainly responsible for communicating the results, namely writing this blogpost.
+reproduction: adapting the original code to be compatible with modern methods. In
+addition, Rafaël investigated options to harvest Google Colab's computational resources
+and Evert was responsible for generating the new labels from a pretrained model. Both
+Evert and Roy were responsible for communicating the results, namely writing this
+blogpost.
 
 ## References
 
