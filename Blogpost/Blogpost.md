@@ -37,7 +37,9 @@ snapshots in time. The bottom row are the event-based representations of the top
 the first timestep, no changes are noted. At the second step, once the star has moved,
 some receptors observe a _change_ in intensity.
 
-![](event_cam_fig.png)
+<p align="center">
+<img src="event_cam_fig.png" title="example" width="400"/>
+</p>
 
 Important to note is that this representation of event-based images already show a certain
 interpretation of the event data! In fact, data from event-based cameras can hardly be
@@ -55,7 +57,9 @@ application. In the example below (obtained from
 the [CityScapes Dataset](https://www.cityscapes-dataset.com/examples/)), the classes could
 be _car_ (blue), _cyclist_ (red) and _road_ (light purple) among others.
 
-![](segment_example.png)
+<p align="center">
+<img src="segment_example.png" width="500"/>
+</p>
 
 ## Original method
 
@@ -70,7 +74,9 @@ on the events that took place during some time interval containing _t<sub>i</sub
 As a reference, this image aims to clarify the concept: A white pixel conveys the absence
 of a datapoint (i.e. no event was recorded at that time, at that location).
 
-![](event_encoding_basic.png)
+<p align="center">
+<img src="event_encoding_basic.png" width="500"/>
+</p>
 
 The nature of the information in a pixel varies from method to method, for example one
 could take the integral of the events in the time interval. Additionally, different kinds
@@ -84,7 +90,9 @@ interval, summing them together. Second is the mean of all events in the time in
 third the standard variation. These three methods all split the information into a
 positive and a negative channel, resulting in 6 channels.
 
-![](event_encoding_6channels.png)
+<p align="center">
+<img src="event_encoding_6channels.png" width="600"/>
+</p>
 
 Please note that the colours in the figure are only meant to signify the various channels,
 they do not convey actual values, nor are the channels interpreted as colours in the
@@ -121,11 +129,16 @@ the per-pixel cross-entropy loss to optimize the model.
 | Grayscale image      | 94.67           | 64.98       | 94.67           | 64.98      | 94.67            | 64.98        |
 | Combined             | 95.22           | 68.36       | 95.18           | 67.95      | 95.29            | 68.26        |
 
-![](results.png)
+An example of the segmentation result for three different event integration intervals:
+10ms, 50ms and 250ms:
+
+<p align="center">
+<img src="results.png" width="600"/>
+</p>
 
 ## Reproduction
 
-The goal of our reproduction is to attempt to make their method robust for the future:
+The goal of our reproduction[^4] is to attempt to make their method robust for the future:
 back in 2018, Alonso and Murillo built their method on Python 2.7 and TensorFlow 1.11
 structures. We attempted to adapt their code[^3] to be compatible with Python 3.x and
 TensorFlow 2.7. The model was then trained from scratch, using the data provided with the
@@ -160,7 +173,8 @@ compatability functions which operate identically to the older functions from te
 ### Using a SOTA SegNet for generating labels
 
 The model used in the original work to generate ground truths has been surpassed by higher
-accuracy pre-trained models. We elected to use a newer model trained on cityscapes, to see
+accuracy pre-trained models. We elected to use a newer 'pspnet_101' model trained on
+cityscapes, to see
 whether the model was somehow very sensitive to intricacies due to the original model used
 to generate segmentation images. This newer model was trained to generate more than 6
 classes, we grouped certain classes together to match the 6 classes used in the paper. The
@@ -216,8 +230,10 @@ insufficient information, namely:
 - The given event data has already been processed, simply supplied as _.npy_ files. The
   code for the pre-processing steps is not included in the given repository. This means
   that the time used for differences in the event data (the 50ms, 250ms, ...) in the table
-  above is not fully reproducible. We are assuming that 50ms is used for the given event
-  data.
+  above is not fully reproducible. Although it is given in the paper that the model
+  was trained on event data with integration intervals of 50ms, they also mention that
+  it was tested on 10ms, 50ms and 250ms, but neglect to specify which test data
+  corresponds to which intervals.
 - The authors are unclear about how they integrated grayscale and event data for the final
   row in the table above.
 - The given 'best' weights in the repository do not actually result in the given results
@@ -241,7 +257,7 @@ As we mentioned before, generating new labels for the testset required merging s
 predicted labels from the pretrained model. This was easier said than done however:
 a bit of investigating showed that some 30-ish classes are defined for segmentation tasks
 for driving scenery. Most applications, including the pretrained model, seem to use only
-19 of those, but often disregard documenting which classes exactly. EV-SegNet then was
+19 of those, but often neglect documenting which classes exactly. EV-SegNet then was
 trained to only classify 6 classes, but at least mentions - albeit in passing - the
 categories (and their subclasses) that were merged into their 6. The challenge was now to
 identify the 19 classes used by the pretrained model. As it happens, in EV-SegNet's
@@ -260,12 +276,10 @@ the performance on the new test labels as a measure of how robust the method is.
 
 [^1]: Iñigo Alonso and Ana C. Murillo. _Ev-segnet: Semantic segmentation for event-based
 cameras_. 2018. URL: [https://arxiv.org/abs/1811.12039](https://arxiv.org/abs/1811.12039)
-
 [^2]: F. Chollet. Xception: Deep learning with depthwise separable convolutions. 2017 IEEE
 Conference on Computer Vision and Pattern Recognition (CVPR), pages 1800–1807, 2017.
-
-[^3]:  Iñigo Alonso and Ana C. Murillo.
+[^3]: Iñigo Alonso and Ana C. Murillo.
 [EV-SegNet Repository](https://github.com/Shathe/Ev-SegNet.git)
-
 [^4]: Roy Vorster.
-[Reproduction EV-SegNet Repository](https://github.com/RoyVorster/Ev-SegNet.git)
+[Reproduction EV-SegNet Repository](https://github.com/RoyVorster/Ev-SegNet.git)_
+
