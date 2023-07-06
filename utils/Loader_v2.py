@@ -5,13 +5,24 @@ import tensorflow as tf
 from tensorflow.keras.utils import to_categorical
 import glob
 import cv2
-from augmenters import get_augmenter
+from .augmenters import get_augmenter
+import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 
 np.random.seed(7)
 
 class Loader:
-    def __init__(self, dataFolderPath, width=224, height=224, channels=3, n_classes=21, problemType='segmentation',
-                 median_frequency=0, other=False, channels_events=0, r_train_samples=1):
+    def __init__(self, 
+                 dataFolderPath, 
+                 width=224, 
+                 height=224, 
+                 channels=3, 
+                 n_classes=21, 
+                 problemType='segmentation',
+                 median_frequency=0, 
+                 other=False, 
+                 channels_events=0, 
+                 r_train_samples=1):
         self.dataFolderPath = dataFolderPath
         self.height = height
         self.channels_events = channels_events
@@ -55,6 +66,8 @@ class Loader:
         if other:
             self.test_list = [file for file in files if '/other/' in file]
 
+        
+
 
         # problemType == 'segmentation':
         # The structure has to be dataset/train/images/image.png
@@ -80,6 +93,30 @@ class Loader:
         self.n_train_samples = int(len(self.image_train_list)*self.r_train_samples)
         self.suffle_segmentation()
 
+
+        """
+        image_train_list ['../datasets/processed/train/images/scene13_dyn_test_01_000000_classical_2.npy'
+                        '../datasets/processed/train/images/scene12_dyn_test_00_000000_classical_1.npy'
+                        '../datasets/processed/train/images/scene15_dyn_test_04_000000_classical_3.npy']
+        image_test_list ['../datasets/processed/test/images/scene13_dyn_test_00_000000_classical_0.npy', 
+                        '../datasets/processed/test/images/scene13_dyn_test_00_000000_classical_1.npy', 
+                        '../datasets/processed/test/images/scene13_dyn_test_00_000000_classical_2.npy']
+        
+        label_train_list ['../datasets/processed/train/labels/scene13_dyn_test_01_000000_mask_2.npy'
+                        '../datasets/processed/train/labels/scene12_dyn_test_00_000000_mask_1.npy'
+                        '../datasets/processed/train/labels/scene15_dyn_test_04_000000_mask_3.npy']
+        label_test_list ['../datasets/processed/test/labels/scene13_dyn_test_00_000000_mask_0.npy', 
+                        '../datasets/processed/test/labels/scene13_dyn_test_00_000000_mask_1.npy', 
+                        '../datasets/processed/test/labels/scene13_dyn_test_00_000000_mask_2.npy']
+        
+        events_train_list ['../datasets/processed/train/events/scene13_dyn_test_01_000000_2.npy'
+                        '../datasets/processed/train/events/scene12_dyn_test_00_000000_1.npy'
+                        '../datasets/processed/train/events/scene15_dyn_test_04_000000_3.npy']
+        events_test_list ['../datasets/processed/test/events/scene13_dyn_test_00_000000_0.npy', 
+                        '../datasets/processed/test/events/scene13_dyn_test_00_000000_1.npy', 
+                        '../datasets/processed/test/events/scene13_dyn_test_00_000000_2.npy']
+        """
+
         print('Loaded ' + str(len(self.image_train_list)) + ' training samples')
         print('Loaded ' + str(len(self.image_test_list)) + ' testing samples')
         self.n_classes = n_classes
@@ -102,6 +139,8 @@ class Loader:
     # Returns a weighted mask from a binary mask
     def _from_binarymask_to_weighted_mask(self, labels, masks):
         '''
+        used to balance the impact of each class on the loss function by assigning higher weights to less frequent classes
+
         the input [mask] is an array of N binary masks 0/1 of size [N, H, W ] where the 0 are pixeles to ignore from the labels [N, H, W ]
         and 1's means pixels to take into account.
         This function transofrm those 1's into a weight using the median frequency
@@ -135,10 +174,12 @@ class Loader:
         img = img.reshape(img.shape[1:])
 
         label = label.reshape(sum(((1,), label.shape), ()))
+        label = label.astype(np.int32)
         label = seq_label.augment_images(label)
         label = label.reshape(label.shape[1:])
 
         mask_image = mask_image.reshape(sum(((1,), mask_image.shape), ()))
+        mask_image = mask_image.astype(np.int32)
         mask_image = seq_mask.augment_images(mask_image)
         mask_image = mask_image.reshape(mask_image.shape[1:])
 
@@ -163,9 +204,9 @@ class Loader:
         y = np.zeros([size, self.height, self.width], dtype=np.uint8)
         mask = np.ones([size, self.height, self.width], dtype=np.float32)
 
-        print("Shape of x: ", x.shape)
-        print("Shape of y: ", y.shape)
-        print("Shape of mask: ", mask.shape)
+        # print("Shape of x: ", x.shape)
+        # print("Shape of y (labels/mask): ", y.shape)
+        # print("Shape of mask: ", mask.shape)
 
         if train:
             image_list = self.image_train_list
@@ -193,10 +234,9 @@ class Loader:
         # the augmentation has to be done separately due to augmentation
         for index in range(size):
             img = np.load(random_images[index])
+            
             label = np.load(random_labels[index])
 
-            print("Shape of img: ", img.shape)
-            print("Shape of label: ", label.shape)
             # no need because using np arrays
             # if self.dim == 1:
                 # img = cv2.imread(random_images[index], 0)
@@ -211,8 +251,6 @@ class Loader:
                 #event=np.swapaxes(np.swapaxes(event, 0, 2), 0, 1)
 
             mask_image = mask[index, :, :]
-
-            print("Shape of mask_image: ", mask_image.shape)
 
             # Reshape images if its needed
             if img.shape[1] != self.width or img.shape[0] != self.height:
@@ -229,19 +267,16 @@ class Loader:
                 else:
                     img, label, mask_image = self._perform_augmentation_segmentation(img, label, mask_image, augmenter)
 
-            print("Shape of img after augmentation: ", img.shape)
-            print("Shape of label after augmentation: ", label.shape)
-            print("Shape of mask_image after augmentation: ", mask_image.shape)
         
 
-            # modify the mask and the labels. Mask
-            mask_ignore = label >= self.n_classes
+            # modify the mask and the labels. 
+            #  this only works if the labels have index determined by number of classes?
+            mask_ignore = label >= self.n_classes # creates binary 2D numpy array
             mask_image[mask_ignore] = 0  # The ignore pixels will have a value o 0 in the mask
             label[mask_ignore] = 0  # The ignore label will be n_classes
 
             if self.dim == 1:
                 img = np.reshape(img, (img.shape[0], img.shape[1], self.dim))
-            print("Shape of img after reshaping: ", img.shape)
 
             if self.dim > 0:
                 x[index, :, :, :self.dim] = img.astype(np.float32)
@@ -257,14 +292,11 @@ class Loader:
 
         # the labeling to categorical (if 5 classes and value is 2:  2 -> [0,0,1,0,0])
         a, b, c = y.shape
-        print("Shape of y before reshaping: ", y.shape)
         y = y.reshape((a * b * c))
-        print("Shape of y after reshaping: ", y.shape)
 
         # Convert to categorical. Add one class for ignored pixels
         y = to_categorical(y, num_classes=self.n_classes)
         y = y.reshape((a, b, c, self.n_classes)).astype(np.uint8)
-        print("Shape of y after converting to categorical: ", y.shape)
 
         return x, y, mask
 
@@ -387,24 +419,59 @@ def  get_neighbour(i, j, max_i, max_j):
 
     return i, j
 
+
 if __name__ == "__main__":
 
-    loader = Loader('../datasets/processed', problemType='segmentation', n_classes=17, width=640, height=480,
-                    median_frequency=0.00, channels=1, channels_events=6)
+    loader = Loader('../datasets/processed', problemType='segmentation', n_classes=25, width=640, height=480,
+                    median_frequency=0.00, channels=3, channels_events=6)
     # print(loader.median_frequency_exp())
-    x, y, mask = loader.get_batch(size=6, augmenter='segmentation')
+    x, y, mask = loader.get_batch(size=1, augmenter='segmentation')
 
-    for i in range(6):
-        cv2.imshow('x', (x[i, :, :, 0]).astype(np.uint8))
-        cv2.imshow('dvs+', (x[i, :, :, 1] * 127).astype(np.int8))
-        cv2.imshow('dvs-', (x[i, :, :, 2] * 127).astype(np.int8))
-        cv2.imshow('dvs+mean', (x[i, :, :, 3] * 127).astype(np.int8))
-        cv2.imshow('dvs-mean', (x[i, :, :, 5] * 127).astype(np.int8))
-        cv2.imshow('dvs+std', (x[i, :, :, 4] * 255).astype(np.int8))
-        cv2.imshow('dvs-std', (x[i, :, :, 6] * 255).astype(np.int8))
-        cv2.imshow('y', (np.argmax(y, 3)[i, :, :] * 35).astype(np.uint8))
-        print(mask.shape)
-        cv2.imshow('mask', (mask[i, :, :] * 255).astype(np.uint8))
-        cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    for i in range(1):
+        plt.figure(figsize=(15,10))
+
+        plt.subplot(2,4,1)
+        plt.imshow((x[i, :, :, :3]).astype(np.uint8)) # RGB image
+        plt.title('x')
+
+        plt.subplot(2,4,2)
+        plt.imshow((x[i, :, :, 3] * 127).astype(np.int8), cmap='gray')
+        plt.title('dvs+')
+
+        plt.subplot(2,4,3)
+        plt.imshow((x[i, :, :, 4] * 127).astype(np.int8), cmap='gray')
+        plt.title('dvs-')
+
+        plt.subplot(2,4,4)
+        plt.imshow((x[i, :, :, 5] * 127).astype(np.int8), cmap='gray')
+        plt.title('dvs+mean')
+
+        plt.subplot(2,4,5)
+        plt.imshow((x[i, :, :, 6] * 255).astype(np.int8), cmap='gray')
+        plt.title('dvs-std')
+
+        plt.subplot(2,4,6)
+        plt.imshow((x[i, :, :, 7] * 127).astype(np.int8), cmap='gray')
+        plt.title('dvs+std')
+
+        plt.subplot(2,4,7)
+        plt.imshow((x[i, :, :, 8] * 255).astype(np.int8), cmap='gray')
+        plt.title('dvs-std')
+
+        plt.subplot(2,4,8)
+        # Converting back to label encoding for visualization
+        y_label_encoded = np.argmax(y, axis=-1)  # original labels ranging from 0 to 24
+        # visualize one of these label-encoded images with a color gradient
+        plt.imshow(y_label_encoded[0], cmap='viridis')  # Change the index as needed
+        plt.colorbar()  #colorbar on the side representing class labels
+        plt.title('y')
+        # plt.imshow((np.argmax(y, 3)[i, :, :] * 35).astype(np.uint8), cmap='gray')
+
+        plt.figure()
+        plt.imshow((mask[i, :, :] * 255).astype(np.uint8), cmap='gray')
+        plt.title('mask')
+        
+        plt.show()
+
+
     x, y, mask = loader.get_batch(size=3, train=False)

@@ -5,6 +5,7 @@ from sklearn.metrics import confusion_matrix
 import math
 import os
 import cv2
+from pathlib import Path
 
 # Prints the number of parameters of a model
 def get_params(model):
@@ -87,9 +88,12 @@ def generate_image(image_scores, output_dir, dataset, loader, train=False, suffi
     image *= 255/image_scores.shape[-1]
 
     # this is the shittiest path handling ive ever seen ffs
-    name_split = list[index - 1].split('/')[-1].split('.')
-    name = name_split[0] + suffix + "." + name_split[1]
-    name = name.replace('.jpg', '.png').replace('.jpeg', '.png')
+    # name_split = list[index - 1].split('/')[-1].split('.')
+    # name = name_split[0] + suffix + "." + name_split[1]
+    # name = name.replace('.jpg', '.png').replace('.jpeg', '.png')
+    
+    file_path = Path(list[index - 1]) # create a Path object from the file path
+    name = file_path.stem + suffix + ".png" # create new filename with suffix and new extension
 
     cv2.imwrite(os.path.join(out_dir, name), image)
 
@@ -171,11 +175,12 @@ def get_metrics(loader, model, n_classes, train=True, flip_inference=False, scal
 
 # computes the miou given a confusion amtrix
 def compute_iou(conf_matrix):
+    epsilon = 1e-7
     intersection = np.diag(conf_matrix)
     ground_truth_set = conf_matrix.sum(axis=1)
     predicted_set = conf_matrix.sum(axis=0)
     union = ground_truth_set + predicted_set - intersection
-    IoU = intersection / union.astype(np.float32)
+    IoU = intersection / (union.astype(np.float32) + epsilon)
     IoU[np.isnan(IoU)] = 0
     print(IoU)
     miou = np.mean(IoU)

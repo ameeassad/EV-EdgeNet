@@ -10,34 +10,7 @@ def get_augmenter(name, c_val=255, vertical_flip=True):
         sometimes = lambda aug: iaa.Sometimes(0.50, aug)
         few = lambda aug: iaa.Sometimes(0.10, aug)
 
-        if 'rgb' in name:
-            scale = random.uniform(0.87, 1.25)
-
-            seq_rgb = iaa.Sequential([
-
-                iaa.Fliplr(0.50),  # horizontally flip 50% of the images
-                iaa.Flipud(0.20),  # vertically flip 50% of the images
-                sometimes(iaa.Add((-30, 30))),
-                sometimes(iaa.Multiply((0.80, 1.20), per_channel=False)),
-                sometimes(iaa.GaussianBlur(sigma=(0, 0.10))),
-                few(iaa.CoarseDropout(p=(0.05, 0.15), size_percent=(0.15, 0.35), per_channel=True)),
-                few(iaa.CoarseDropout(p=(0.05, 0.15), size_percent=(0.15, 0.35), per_channel=False)),
-                sometimes(iaa.ContrastNormalization((0.75, 1.35))),
-                alot(iaa.Affine(
-                    scale={"x": (scale), "y": (scale)},
-                    # scale images to 80-120% of their size, individually per axis
-                    translate_percent={"x": (-0.2, 0.2), "y": (-0.2, 0.2)},
-                    # translate by -20 to +20 percent (per axis)
-                    rotate=(-45, 45),  # rotate by -45 to +45 degrees
-                    order=1,  #bilinear interpolation (fast)
-                    cval=0,
-                    mode="reflect" # `edge`, `wrap`, `reflect` or `symmetric`
-                    # cval=(0, 255),  # if mode is constant, use a cval between 0 and 255
-                    # mode=ia.ALL  # use any of scikit-image's warping modes (see 2nd image from the top for examples)
-                ))])
-            return seq_rgb
-
-        elif 'segmentation' in name:
+        if 'segmentation' in name:
             #create one per image. give iamge, label and mask to the pipeling
 
             value_flip = round(random.random())
@@ -141,24 +114,6 @@ def get_augmenter(name, c_val=255, vertical_flip=True):
              
 
             return seq_image, seq_label, seq_mask, seq_events
-          
-        else:
-
-            seq_multi = iaa.Sequential([
-
-                sometimes(iaa.Affine(
-                    # scale images to 80-120% of their size, individually per axis
-                    # translate by -20 to +20 percent (per axis)
-                    scale={"x": (0.8, 1.2), "y": (0.8, 1.2)},
-                    # scale images to 80-120% of their size, individually per axis
-                    translate_percent={"x": (-0.20, 0.2), "y": (-0.2, 0.2)},
-                    # translate by -20 to +20 percent (per axis)
-                    rotate=(-45, 45),  # rotate by -45 to +45 degrees
-                    order=0,  # use nearest neighbour
-                    cval=127.5,
-                    mode="constant"
-                ))
-            ])
-            return seq_multi
+        
     else:
         return None

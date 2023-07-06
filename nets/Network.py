@@ -243,7 +243,6 @@ class Segception_small(tf.keras.Model):
         x = self.decoder_conv_3(x, training=training)  # 128
 
         x = self.aspp(x, training=training, operation='sum')  # 128
-
         x_aux = self.conv_logits_aux(x)
         x_aux = upsampling(x_aux, scale=2)
         x_aux_out = upsampling(x_aux, scale=2)

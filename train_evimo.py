@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 import os
 import nets.Network as Segception
-import utils.Loader as Loader
+import utils.Loader_v2 as Loader
 from utils.utils import get_params, preprocess, lr_decay, convert_to_tensors, restore_state, init_model, get_metrics
 import argparse
 from datetime import datetime
@@ -79,6 +79,9 @@ def train(loader, model, epochs=15, batch_size=8, show_loss=True, augmenter=None
                 best_miou = test_miou
                 ckpt_manager = tf.train.CheckpointManager(ckpt, name_best_model, max_to_keep=5)
                 ckpt_manager.save()
+            # lets also just save it anyway
+            ckpt_manager = tf.train.CheckpointManager(ckpt, name_best_model + '-last', max_to_keep=5)
+            ckpt_manager.save()
         else:
             ckpt_manager = tf.train.CheckpointManager(ckpt, name_best_model, max_to_keep=5)
             ckpt_manager.save()
@@ -99,11 +102,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", help="Dataset path", default='dataset')
     parser.add_argument("--model_path", help="Model path", default='weights/model-evimo')
-    parser.add_argument("--n_classes", help="number of classes to classify", default=6)
+    parser.add_argument("--n_classes", help="number of classes to classify", default=25)
     parser.add_argument("--batch_size", help="batch size", default=8)
-    parser.add_argument("--epochs", help="number of epochs to train", default=500)
-    parser.add_argument("--width", help="number of epochs to train", default=352)
-    parser.add_argument("--height", help="number of epochs to train", default=224)
+    parser.add_argument("--epochs", help="number of epochs to train", default=50)
+    parser.add_argument("--width", help="number of epochs to train", default=640)
+    parser.add_argument("--height", help="number of epochs to train", default=480)
     parser.add_argument("--lr", help="init learning rate", default=1e-4)
     parser.add_argument("--n_gpu", help="number of the gpu", default=0)
     parser.add_argument("--r_samples", help="ratio of training samples used", default=1)
