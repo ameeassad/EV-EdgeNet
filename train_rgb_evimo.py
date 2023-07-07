@@ -53,11 +53,11 @@ def train(loader, model, epochs=15, batch_size=8, show_loss=True, augmenter=None
                 np_image = [x, y, mask][1].numpy()[0]
                 np_image = np.argmax(np_image, axis=-1).astype(float)
                 print('size of np image', np_image.size)
-                plt.imsave('temp_image.png', np_image)
+                plt.imsave('temp_imagergb.png', np_image)
 
                 np_x_image = [x, y, mask][0].numpy()[0]
                 np_x_image = (np_x_image[:, :, 0] * 127).astype(np.int8) + (np_x_image[:, :, 1] * 127).astype(np.int8)
-                plt.imsave('temp_x_image.png', np_x_image)
+                plt.imsave('temp_x_imagergb.png', np_x_image)
                 # END OF DEBUGGING
 
                 y_, aux_y_ = model(x, training=True, aux_loss=True)  # get output of the model
@@ -151,8 +151,8 @@ if __name__ == "__main__":
     lr = float(args.lr)
     r_samples = float(args.r_samples)
 
-    channels = 6 # input of 6 channels
-    channels_image = 0
+    channels = 3 # input of 6 channels
+    channels_image = 3
     channels_events = channels - channels_image
     folder_best_model = args.model_path
     name_best_model = os.path.join(folder_best_model,'best')
