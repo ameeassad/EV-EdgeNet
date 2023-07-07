@@ -161,10 +161,17 @@ def get_metrics(loader, model, n_classes, train=True, flip_inference=False, scal
                 # Also write test properly
                 generate_image(y_raw[img_idx, ...], 'images_out', loader.dataFolderPath, loader, train, suffix="_label")
 
+        # DEBUGGING, y scores from inference
+        y_max = np.argmax(y_[0,:,:], axis=-1).astype(float)
+        print('y scores max: ', y_max)
+        print('y scores unique:', np.unique(y_max))
+
         # Reshape
         y = tf.reshape(y, [y.shape[1] * y.shape[2] * y.shape[0], y.shape[3]])
         y_ = tf.reshape(y_, [y_.shape[1] * y_.shape[2] * y_.shape[0], y_.shape[3]])
         mask = tf.reshape(mask, [mask.shape[1] * mask.shape[2] * mask.shape[0]])
+
+        print('shape after reshaping', str(y_.shape))
 
         labels, predictions = erase_ignore_pixels(labels=tf.argmax(y, 1), predictions=tf.argmax(y_, 1), mask=mask)
         accuracy(labels, predictions)

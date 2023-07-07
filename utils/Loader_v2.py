@@ -267,13 +267,20 @@ class Loader:
                 else:
                     img, label, mask_image = self._perform_augmentation_segmentation(img, label, mask_image, augmenter)
 
-        
-
+            # plt.figure('LABEL BEFORE')
+            # plt.imshow(label, cmap='viridis')
+            # plt.axis('off')
+            # plt.show()
             # modify the mask and the labels. 
             #  this only works if the labels have index determined by number of classes?
             mask_ignore = label >= self.n_classes # creates binary 2D numpy array
-            mask_image[mask_ignore] = 0  # The ignore pixels will have a value o 0 in the mask
+            mask_zeros = label==0  # added label==0 for the pixels without a class
+            mask_image[mask_zeros] = 0
+            mask_image[mask_ignore] = 0  # The ignore pixels will have a value of 0 in the mask
             label[mask_ignore] = 0  # The ignore label will be n_classes
+
+            # DEBUGGING 
+            # print('label values', np.unique(label))
 
             if self.dim == 1:
                 img = np.reshape(img, (img.shape[0], img.shape[1], self.dim))
@@ -397,6 +404,104 @@ class Loader:
         '''
         return event_image
 
+    def batchex_printer(self, x, y, mask, rgb= False, predicted=False):
+        if rgb:
+            for i in range(1):
+                plt.figure(figsize=(15,10))
+
+                plt.subplot(2,4,1)
+                plt.imshow((x[i, :, :, :3]).astype(np.uint8)) # RGB image
+                plt.title('x')
+
+                plt.subplot(2,4,2)
+                plt.imshow((x[i, :, :, 3] * 127).astype(np.int8), cmap='gray')
+                plt.title('dvs+')
+
+                plt.subplot(2,4,3)
+                plt.imshow((x[i, :, :, 4] * 127).astype(np.int8), cmap='gray')
+                plt.title('dvs-')
+
+                plt.subplot(2,4,4)
+                plt.imshow((x[i, :, :, 5] * 127).astype(np.int8), cmap='gray')
+                plt.title('dvs+mean')
+
+                plt.subplot(2,4,5)
+                plt.imshow((x[i, :, :, 6] * 255).astype(np.int8), cmap='gray')
+                plt.title('dvs-std')
+
+                plt.subplot(2,4,6)
+                plt.imshow((x[i, :, :, 7] * 127).astype(np.int8), cmap='gray')
+                plt.title('dvs+std')
+
+                plt.subplot(2,4,7)
+                plt.imshow((x[i, :, :, 8] * 255).astype(np.int8), cmap='gray')
+                plt.title('dvs-std')
+
+                plt.subplot(2,4,8)
+                # Converting back to label encoding for visualization
+                y_label_encoded = np.argmax(y, axis=-1)  # original labels ranging from 0 to 24
+                # visualize one of these label-encoded images with a color gradient
+                plt.imshow(y_label_encoded[0], cmap='viridis')  # Change the index as needed
+                plt.colorbar()  #colorbar on the side representing class labels
+                plt.title('y')
+                # plt.imshow((np.argmax(y, 3)[i, :, :] * 35).astype(np.uint8), cmap='gray')
+
+                plt.figure()
+                plt.imshow((mask[i, :, :] * 255).astype(np.uint8), cmap='gray')
+                plt.title('mask')
+                
+                plt.show()
+        elif predicted:
+            y = y[0,:,:]
+            y_ = np.argmax(y, axis=-1).astype(float)
+            print("y scores unique but in loader:", np.unique(y_))
+            y_ *= 255/y.shape[-1]
+            plt.figure()
+            plt.imshow(y_, cmap='viridis')
+            plt.savefig('y_output.png')
+        else:
+            for i in range(1):
+
+                plt.figure(figsize=(15,10))
+
+                plt.subplot(2,4,1)
+                plt.imshow((mask[i, :, :] * 255).astype(np.uint8), cmap='gray')
+                plt.title('mask')
+
+                plt.subplot(2,4,2)
+                plt.imshow((x[i, :, :, 0] * 127).astype(np.int8), cmap='gray')
+                plt.title('dvs+')
+
+                plt.subplot(2,4,3)
+                plt.imshow((x[i, :, :, 1] * 127).astype(np.int8), cmap='gray')
+                plt.title('dvs-')
+
+                plt.subplot(2,4,4)
+                plt.imshow((x[i, :, :, 2] * 127).astype(np.int8), cmap='gray')
+                plt.title('dvs+mean')
+
+                plt.subplot(2,4,5)
+                plt.imshow((x[i, :, :, 3] * 255).astype(np.int8), cmap='gray')
+                plt.title('dvs-std')
+
+                plt.subplot(2,4,6)
+                plt.imshow((x[i, :, :, 4] * 127).astype(np.int8), cmap='gray')
+                plt.title('dvs+std')
+
+                plt.subplot(2,4,7)
+                plt.imshow((x[i, :, :, 5] * 255).astype(np.int8), cmap='gray')
+                plt.title('dvs-std')
+
+                plt.subplot(2,4,8)
+                # Converting back to label encoding for visualization
+                y_label_encoded = np.argmax(y, axis=-1)  # original labels ranging from 0 to 24
+                # visualize one of these label-encoded images with a color gradient
+                plt.imshow(y_label_encoded[0], cmap='viridis')  # Change the index as needed
+                plt.colorbar()  #colorbar on the side representing class labels
+                plt.title('y')
+                # plt.imshow((np.argmax(y, 3)[i, :, :] * 35).astype(np.uint8), cmap='gray')
+
+
 
 def  get_neighbour(i, j, max_i, max_j):
     random_number= np.random.random()
@@ -420,12 +525,14 @@ def  get_neighbour(i, j, max_i, max_j):
     return i, j
 
 
+
 if __name__ == "__main__":
 
     loader = Loader('../datasets/processed', problemType='segmentation', n_classes=25, width=640, height=480,
                     median_frequency=0.00, channels=3, channels_events=6)
     # print(loader.median_frequency_exp())
-    x, y, mask = loader.get_batch(size=1, augmenter='segmentation')
+    # x, y, mask = loader.get_batch(size=1, augmenter='segmentation')
+    x, y, mask = loader.get_batch(size=1, augmenter=None)
 
     for i in range(1):
         plt.figure(figsize=(15,10))
@@ -474,4 +581,4 @@ if __name__ == "__main__":
         plt.show()
 
 
-    x, y, mask = loader.get_batch(size=3, train=False)
+    # x, y, mask = loader.get_batch(size=3, train=False)

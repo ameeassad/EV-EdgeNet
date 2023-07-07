@@ -32,10 +32,16 @@ def train(loader, model, epochs=15, batch_size=8, show_loss=True, augmenter=None
                 # get batch
                 x, y, mask = loader.get_batch(size=batch_size, train=True, augmenter=augmenter)
 
+                # DEBUG BY DISPLAYING BATCH
+                # loader.batchex_printer(x,y,mask)
+
                 x = preprocess(x, mode=preprocess_mode) # mode = None so just returns x
                 [x, y, mask] = convert_to_tensors([x, y, mask])
 
                 y_, aux_y_ = model(x, training=True, aux_loss=True)  # get output of the model
+
+                loader.batchex_printer(x,y_,mask, predicted=True)
+
                 loss = tf.compat.v1.losses.softmax_cross_entropy(y, y_, weights=mask)  # compute loss
 
                 total_loss_m += loss
@@ -62,7 +68,7 @@ def train(loader, model, epochs=15, batch_size=8, show_loss=True, augmenter=None
         if evaluation:
             # get metrics
             #train_acc, train_miou = get_metrics(loader, model, loader.n_classes, train=True, preprocess_mode=preprocess_mode)
-            test_acc, test_miou = get_metrics(loader, model, loader.n_classes, train=False, flip_inference=False, write_images=False,
+            test_acc, test_miou = get_metrics(loader, model, loader.n_classes, train=False, flip_inference=False, write_images=True,
                                               scales=[1], preprocess_mode=preprocess_mode, n_samples_max=n_test_samples_max)
 
             #print('Train accuracy: ' + str(train_acc.numpy()))
@@ -80,7 +86,7 @@ def train(loader, model, epochs=15, batch_size=8, show_loss=True, augmenter=None
                 ckpt_manager = tf.train.CheckpointManager(ckpt, name_best_model, max_to_keep=5)
                 ckpt_manager.save()
             # lets also just save it anyway
-            ckpt_manager = tf.train.CheckpointManager(ckpt, name_best_model + '-last', max_to_keep=5)
+            ckpt_manager = tf.train.CheckpointManager(ckpt, name_best_model, max_to_keep=5)
             ckpt_manager.save()
         else:
             ckpt_manager = tf.train.CheckpointManager(ckpt, name_best_model, max_to_keep=5)
@@ -102,7 +108,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", help="Dataset path", default='dataset')
     parser.add_argument("--model_path", help="Model path", default='weights/model-evimo')
-    parser.add_argument("--n_classes", help="number of classes to classify", default=25)
+    parser.add_argument("--n_classes", help="number of classes to classify", default=28)
     parser.add_argument("--batch_size", help="batch size", default=8)
     parser.add_argument("--epochs", help="number of epochs to train", default=50)
     parser.add_argument("--width", help="number of epochs to train", default=640)
