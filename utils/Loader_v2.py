@@ -5,7 +5,7 @@ import tensorflow as tf
 from tensorflow.keras.utils import to_categorical
 import glob
 import cv2
-from .augmenters import get_augmenter
+# from .augmenters import get_augmenter
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 
@@ -457,8 +457,9 @@ class Loader:
             print("y scores unique but in loader:", np.unique(y_))
             y_ *= 255/y.shape[-1]
             plt.figure()
+            plt.colorbar()
             plt.imshow(y_, cmap='viridis')
-            plt.savefig('y_output.png')
+            plt.savefig('temp_predicted_output.png')
         else:
             for i in range(1):
 

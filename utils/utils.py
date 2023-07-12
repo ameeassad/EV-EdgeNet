@@ -109,6 +109,9 @@ def inference(model, batch_images, n_classes, flip_inference=True, scales=[1], p
         x_scaled = tf.compat.v1.image.resize_images(x, (int(x.shape[1] * scale), int(x.shape[2] * scale)),
                                           method=tf.image.ResizeMethod.BILINEAR, align_corners=True)
         y_scaled = model(x_scaled, training=False)
+
+        # DEBUGGING
+        print('# of y scaled unique b4 resizing', np.unique(y_scaled).size)
         #  rescale the output
         y_scaled = tf.compat.v1.image.resize_images(y_scaled, (x.shape[1], x.shape[2]),
                                           method=tf.image.ResizeMethod.BILINEAR, align_corners=True)
