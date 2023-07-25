@@ -145,6 +145,9 @@ if __name__ == "__main__":
     parser.add_argument("--n_gpu", help="number of the gpu", default=0)
     parser.add_argument("--r_samples", help="ratio of training samples used", default=1)
     parser.add_argument("--problem_type", help="segmentation or edges", default='edges')
+    parser.add_argument("--evaluation", help="eveluate after every epoch?", action='store_true')
+    parser.add_argument("--total_channels", help="num of total channels in inputs", default=6)
+    parser.add_argument("--rgb_channels", help="specify num of RGB channels in inputs", default=0)
     args = parser.parse_args()
 
     n_gpu = int(args.n_gpu)
@@ -165,8 +168,8 @@ if __name__ == "__main__":
     r_samples = float(args.r_samples)
     problemType = args.problem_type
 
-    channels = 6 # input of 6 channels
-    channels_image = 0
+    channels = args.event_channels # input of 6 channels
+    channels_image = args.rgb_channels
     channels_events = channels - channels_image
     folder_best_model = args.model_path
     name_best_model = os.path.join(folder_best_model,'best')
@@ -207,7 +210,7 @@ if __name__ == "__main__":
         #train(loader=loader, model=model, epochs=epochs, batch_size=batch_size, augmenter='segmentation', lr=learning_rate,
         train(loader=loader, model=model, epochs=epochs, batch_size=batch_size, augmenter=None, lr=learning_rate,
             init_lr=lr, saver=ckpt, variables_to_optimize=variables_to_optimize, name_best_model=name_best_model,
-            evaluation=False, preprocess_mode=None, n_test_samples_max=250)
+            evaluation=args.evaluation, preprocess_mode=None, n_test_samples_max=250)
 
     # Test best model
     print('Testing model')
