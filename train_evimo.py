@@ -33,9 +33,6 @@ def train(loader, model, epochs=15, batch_size=8, show_loss=True, augmenter=None
                 # get batch
                 x, y, mask = loader.get_batch(size=batch_size, train=True, augmenter=augmenter)
 
-                print('loader: shape of x', x.shape)
-                print('loader: shape of y', y.shape)
-
                 # DEBUG BY DISPLAYING BATCH
                 # loader.batchex_printer(x,y,mask)
 
@@ -44,25 +41,34 @@ def train(loader, model, epochs=15, batch_size=8, show_loss=True, augmenter=None
                 
                 
                 # DEBUGGING 
-                non_zero = tf.math.count_nonzero([x, y, mask][1]).numpy() > 0
-                print('nonzero tensor 1 values?', non_zero)
-                print('shape of tensors 0',[x, y, mask][0].shape)
-                print('shape of tensors 1',[x, y, mask][1].shape)
-                print('shape of tensors 2',[x, y, mask][2].shape)
+                # non_zero = tf.math.count_nonzero([x, y, mask][1]).numpy() > 0
+                # print('nonzero tensor 1 values?', non_zero)
+                # print('shape of tensors 0',[x, y, mask][0].shape)
+                # print('shape of tensors 1',[x, y, mask][1].shape)
+                # print('shape of tensors 2',[x, y, mask][2].shape)
+                
+                # # Debug: print batch images
+                # np_image = y.numpy()[0] #get first item in batch
+                # np_image = np.argmax(np_image, axis=-1).astype(float)
+                # plt.imsave('temp_image.png', np_image)
 
-                np_image = [x, y, mask][1].numpy()[0]
-                np_image = np.argmax(np_image, axis=-1).astype(float)
-                print('size of np image', np_image.size)
-                plt.imsave('temp_image.png', np_image)
-
-                np_x_image = [x, y, mask][0].numpy()[0]
-                np_x_image = (np_x_image[:, :, 0] * 127).astype(np.int8) + (np_x_image[:, :, 1] * 127).astype(np.int8)
-                plt.imsave('temp_x_image.png', np_x_image)
-                # END OF DEBUGGING
+                # np_x_image = x.numpy()[0] #get first item in batch
+                # np_x_image = (np_x_image[:, :, 0] * 127).astype(np.int8) + (np_x_image[:, :, 1] * 127).astype(np.int8)
+                # plt.imsave('temp_x_image.png', np_x_image)
+                
+                # np_mask_image = mask.numpy()[0] #get first item in batch
+                # plt.imsave('temp_mask_image.png', np_mask_image, cmap='gray')
+                # # END OF DEBUGGING
 
                 y_, aux_y_ = model(x, training=True, aux_loss=True)  # get output of the model
 
-                loader.batchex_printer(x,y_,mask, predicted=True)
+                # Debug: print prediction
+                # loader.batchex_printer(x,y_,mask, predicted=True)
+
+                # debugging: ground truth loss should be 0
+                y = tf.cast(y, tf.float32)
+                # test_loss_gt = tf.reduce_mean(tf.square(y - y))
+                # print('Test loss should be zero? ' , test_loss_gt)
 
                 loss = tf.compat.v1.losses.softmax_cross_entropy(y, y_, weights=mask)  # compute loss
 
@@ -138,10 +144,17 @@ if __name__ == "__main__":
     parser.add_argument("--lr", help="init learning rate", default=1e-4)
     parser.add_argument("--n_gpu", help="number of the gpu", default=0)
     parser.add_argument("--r_samples", help="ratio of training samples used", default=1)
+    parser.add_argument("--problem_type", help="segmentation or edges", default='edges')
     args = parser.parse_args()
 
     n_gpu = int(args.n_gpu)
-    os.environ["CUDA_VISIBLE_DEVICES"] = str(n_gpu)
+    # os.environ["CUDA_VISIBLE_DEVICES"] = str(n_gpu)
+
+    # GPU M2 Chip - Training
+    print(tf.config.list_physical_devices()) # list of all physical devices
+    # train on CPU only uncomment out if you want CPU only training
+    tf.config.set_visible_devices([], 'GPU')
+    tf.config.get_visible_devices() # show what is visible
 
     n_classes = int(args.n_classes)
     batch_size = int(args.batch_size)
@@ -150,6 +163,7 @@ if __name__ == "__main__":
     height =  int(args.height)
     lr = float(args.lr)
     r_samples = float(args.r_samples)
+    problemType = args.problem_type
 
     channels = 6 # input of 6 channels
     channels_image = 0
@@ -157,7 +171,7 @@ if __name__ == "__main__":
     folder_best_model = args.model_path
     name_best_model = os.path.join(folder_best_model,'best')
     dataset_path = args.dataset
-    loader = Loader.Loader(dataFolderPath=dataset_path, n_classes=n_classes, problemType='segmentation',
+    loader = Loader.Loader(dataFolderPath=dataset_path, n_classes=n_classes, problemType=problemType,
                            width=width, height=height, channels=channels_image, channels_events=channels_events,
                            r_train_samples=r_samples)
 
@@ -190,9 +204,10 @@ if __name__ == "__main__":
     variables_to_optimize = model.variables
 
     if epochs > 0:
-        train(loader=loader, model=model, epochs=epochs, batch_size=batch_size, augmenter='segmentation', lr=learning_rate,
+        #train(loader=loader, model=model, epochs=epochs, batch_size=batch_size, augmenter='segmentation', lr=learning_rate,
+        train(loader=loader, model=model, epochs=epochs, batch_size=batch_size, augmenter=None, lr=learning_rate,
             init_lr=lr, saver=ckpt, variables_to_optimize=variables_to_optimize, name_best_model=name_best_model,
-            evaluation=True, preprocess_mode=None, n_test_samples_max=250)
+            evaluation=False, preprocess_mode=None, n_test_samples_max=250)
 
     # Test best model
     print('Testing model')

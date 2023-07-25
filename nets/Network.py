@@ -193,6 +193,60 @@ class Segception_v4(tf.keras.Model):
 
 
 class Segception_small(tf.keras.Model):
+    """
+    Model: "segception_small"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ model (Functional)          [(None, None, None, 2048  20862344  
+                             ),                                  
+                              (None, None, None, 1024            
+                             ),                                  
+                              (None, None, None, 728)            
+                             , (None, None, None, 256            
+                             ),                                  
+                              (None, None, None, 128)            
+                             ]                                   
+                                                                 
+ encoder_adaption (EncoderAd  multiple                 468608    
+ aption)                                                         
+                                                                 
+ encoder_adaption_1 (Encoder  multiple                 337536    
+ Adaption)                                                       
+                                                                 
+ encoder_adaption_2 (Encoder  multiple                 299648    
+ Adaption)                                                       
+                                                                 
+ encoder_adaption_3 (Encoder  multiple                 70464     
+ Adaption)                                                       
+                                                                 
+ encoder_adaption_4 (Encoder  multiple                 18848     
+ Adaption)                                                       
+                                                                 
+ feature_generation (Feature  multiple                 634752    
+ Generation)                                                     
+                                                                 
+ feature_generation_1 (Featu  multiple                 169920    
+ reGeneration)                                                   
+                                                                 
+ feature_generation_2 (Featu  multiple                 46048     
+ reGeneration)                                                   
+                                                                 
+ feature_generation_3 (Featu  multiple                 15776     
+ reGeneration)                                                   
+                                                                 
+ aspp_2 (ASPP_2)             multiple                  12416     
+                                                                 
+ conv2d_29 (Conv2D)          multiple                  924       
+                                                                 
+ conv2d_30 (Conv2D)          multiple                  924       
+                                                                 
+=================================================================
+Total params: 22,938,208
+Trainable params: 22,865,056
+Non-trainable params: 73,152
+_________________________________________________________________
+    """
     def __init__(self, num_classes, input_shape=(None, None, 3), weights='imagenet', **kwargs):
         super(Segception_small, self).__init__(**kwargs)
         base_model = tf.keras.applications.xception.Xception(include_top=False, weights=weights,

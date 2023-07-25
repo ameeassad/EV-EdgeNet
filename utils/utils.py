@@ -6,6 +6,7 @@ import math
 import os
 import cv2
 from pathlib import Path
+import matplotlib.pyplot as plt
 
 # Prints the number of parameters of a model
 def get_params(model):
@@ -87,6 +88,12 @@ def generate_image(image_scores, output_dir, dataset, loader, train=False, suffi
     image = np.argmax(image_scores, axis=-1).astype(float)
     image *= 255/image_scores.shape[-1]
 
+    # Apply a colormap using Matplotlib
+    image_colored = plt.cm.viridis(image/255.)[:, :, :3]  # Change to plt.cm.jet if you prefer jet colormap
+    image_colored = (image_colored * 255).astype(np.uint8)  # Scale to 0-255 and convert to uint8
+    plt.close()
+
+
     # this is the shittiest path handling ive ever seen ffs
     # name_split = list[index - 1].split('/')[-1].split('.')
     # name = name_split[0] + suffix + "." + name_split[1]
@@ -95,7 +102,22 @@ def generate_image(image_scores, output_dir, dataset, loader, train=False, suffi
     file_path = Path(list[index - 1]) # create a Path object from the file path
     name = file_path.stem + suffix + ".png" # create new filename with suffix and new extension
 
-    cv2.imwrite(os.path.join(out_dir, name), image)
+    # cv2.imwrite(os.path.join(out_dir, name), image)
+    cv2.imwrite(os.path.join(out_dir, name), image_colored)
+
+def inference_test(model, batch_images, n_classes, flip_inference=True, scales=[1], preprocess_mode=None):
+    x = batch_images
+    [x] = convert_to_tensors([x])
+
+    # creates the variable to store the scores
+    y_ = convert_to_tensors([np.zeros((x.shape[0], x.shape[1], x.shape[2], n_classes), dtype=np.float32)])[0]
+
+    y_ = model(x, training=True)
+
+    # get probabilities
+    y_prob = tf.nn.softmax(y_)
+
+    return y_prob
 
 def inference(model, batch_images, n_classes, flip_inference=True, scales=[1], preprocess_mode=None):
     x = preprocess(batch_images, mode=preprocess_mode)
@@ -108,6 +130,7 @@ def inference(model, batch_images, n_classes, flip_inference=True, scales=[1], p
         # scale the image
         x_scaled = tf.compat.v1.image.resize_images(x, (int(x.shape[1] * scale), int(x.shape[2] * scale)),
                                           method=tf.image.ResizeMethod.BILINEAR, align_corners=True)
+
         y_scaled = model(x_scaled, training=False)
 
         # DEBUGGING
@@ -155,26 +178,27 @@ def get_metrics(loader, model, n_classes, train=True, flip_inference=False, scal
 
         [y] = convert_to_tensors([y_raw])
         y_ = inference(model, x, n_classes, flip_inference, scales, preprocess_mode=preprocess_mode)
+        loader.batchex_printer(x,y_,mask, predicted=True)
 
         # generate images
         if write_images:
             for img_idx in range(batch_size):
-                generate_image(y_[img_idx, ...], 'images_out', loader.dataFolderPath, loader, train)
+                generate_image(y_[img_idx, ...], 'images_out', loader.dataFolderPath, loader, train, suffix="_predicted")
 
                 # Also write test properly
                 generate_image(y_raw[img_idx, ...], 'images_out', loader.dataFolderPath, loader, train, suffix="_label")
 
         # DEBUGGING, y scores from inference
         y_max = np.argmax(y_[0,:,:], axis=-1).astype(float)
-        print('y scores max: ', y_max)
-        print('y scores unique:', np.unique(y_max))
+        # print('y scores max: ', y_max)
+        print('y_ scores unique (predicted, after inference):', np.unique(y_max))
 
         # Reshape
         y = tf.reshape(y, [y.shape[1] * y.shape[2] * y.shape[0], y.shape[3]])
         y_ = tf.reshape(y_, [y_.shape[1] * y_.shape[2] * y_.shape[0], y_.shape[3]])
         mask = tf.reshape(mask, [mask.shape[1] * mask.shape[2] * mask.shape[0]])
 
-        print('shape after reshaping', str(y_.shape))
+        # print('shape after reshaping', str(y_.shape))
 
         labels, predictions = erase_ignore_pixels(labels=tf.argmax(y, 1), predictions=tf.argmax(y_, 1), mask=mask)
         accuracy(labels, predictions)
@@ -194,9 +218,11 @@ def compute_iou(conf_matrix):
     IoU[np.isnan(IoU)] = 0
     print(IoU)
     miou = np.mean(IoU)
-    '''
+    
+    # DEBUGGING
     print(ground_truth_set)
     miou_no_zeros=miou*len(ground_truth_set)/np.count_nonzero(ground_truth_set)
     print ('Miou without counting classes with 0 elements in the test samples: '+ str(miou_no_zeros))
-    '''
+    # End of debugging 
+
     return miou

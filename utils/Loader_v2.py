@@ -5,7 +5,7 @@ import tensorflow as tf
 from tensorflow.keras.utils import to_categorical
 import glob
 import cv2
-# from .augmenters import get_augmenter
+from .augmenters import get_augmenter
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 
@@ -32,6 +32,7 @@ class Loader:
         self.index_train = 0  # indexes for iterating while training
         self.index_test = 0  # indexes for iterating while testing
         self.median_frequency_soft = median_frequency  # softener value for the median frequency balancing (if median_frequency==0, nothing is applied, if median_frequency==1, the common formula is applied)
+        self.problemType = problemType
 
         # Share of training samples to use
         self.r_train_samples = r_train_samples
@@ -234,9 +235,39 @@ class Loader:
         # the augmentation has to be done separately due to augmentation
         for index in range(size):
             img = np.load(random_images[index])
+            # flip the image bc in EVIMO the classical images are upside-down for some reason
+            img = np.flipud(img)
+            img = np.fliplr(img)
             
             label = np.load(random_labels[index])
 
+            if self.problemType=="edges":
+                unique_labels = np.unique(label)
+                semantic_edge_map = np.zeros_like(label)
+                for i in unique_labels:
+                    # Create a binary image for the current class label
+                    label_map = np.where(label == i, i, 0).astype(np.uint8)
+                    # Erode the mask
+                    eroded = cv2.erode(label_map, np.ones((3,3), np.uint8), iterations=1)
+                    # border = original mask - eroded mask
+                    label_border = label_map - eroded
+
+                    # # Gaussian blur to smoothen the borders
+                    # smooth_label_border = cv2.GaussianBlur(label_border, (11,11), 0)
+                    # # Threshold the blurred image to get binary borders again; adjust threshold value
+                    # _, smooth_label_border = cv2.threshold(smooth_label_border, 50, i, cv2.THRESH_BINARY)
+                    # condition = np.logical_or(semantic_edge_map == 0, smooth_label_border == 0)
+                    # semantic_edge_map[condition] += smooth_label_border[condition]
+                                           
+                    # Add current class border to the overall border image
+                    condition = np.logical_or(semantic_edge_map == 0, label_border == 0)
+                    semantic_edge_map[condition] += label_border[condition]
+ 
+                    # convert back to index of class - only if label_map uses values 255 instead of i
+                    # edge_map = np.where(edge_map==255, i, edge_map)
+                    
+                    # semantic_edge_map = np.concatenate((semantic_edge_map, edge_map))
+                label = semantic_edge_map
             # no need because using np arrays
             # if self.dim == 1:
                 # img = cv2.imread(random_images[index], 0)
@@ -451,15 +482,17 @@ class Loader:
                 plt.title('mask')
                 
                 plt.show()
+                plt.close()
         elif predicted:
             y = y[0,:,:]
             y_ = np.argmax(y, axis=-1).astype(float)
-            print("y scores unique but in loader:", np.unique(y_))
+            print("y_ classes unique (predicted, during training):", np.unique(y_))
             y_ *= 255/y.shape[-1]
             plt.figure()
-            plt.colorbar()
             plt.imshow(y_, cmap='viridis')
+            plt.colorbar()
             plt.savefig('temp_predicted_output.png')
+            plt.close()
         else:
             for i in range(1):
 
@@ -501,6 +534,8 @@ class Loader:
                 plt.colorbar()  #colorbar on the side representing class labels
                 plt.title('y')
                 # plt.imshow((np.argmax(y, 3)[i, :, :] * 35).astype(np.uint8), cmap='gray')
+                plt.close()
+                
 
 
 
@@ -527,59 +562,59 @@ def  get_neighbour(i, j, max_i, max_j):
 
 
 
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    loader = Loader('../datasets/processed', problemType='segmentation', n_classes=25, width=640, height=480,
-                    median_frequency=0.00, channels=3, channels_events=6)
-    # print(loader.median_frequency_exp())
-    # x, y, mask = loader.get_batch(size=1, augmenter='segmentation')
-    x, y, mask = loader.get_batch(size=1, augmenter=None)
+#     loader = Loader('../datasets/processed', problemType='edges', n_classes=25, width=640, height=480,
+#                     median_frequency=0.00, channels=3, channels_events=6)
+#     # print(loader.median_frequency_exp())
+#     # x, y, mask = loader.get_batch(size=1, augmenter='segmentation')
+#     x, y, mask = loader.get_batch(size=1, augmenter=None)
 
-    for i in range(1):
-        plt.figure(figsize=(15,10))
+#     for i in range(1):
+#         plt.figure(figsize=(15,10))
 
-        plt.subplot(2,4,1)
-        plt.imshow((x[i, :, :, :3]).astype(np.uint8)) # RGB image
-        plt.title('x')
+#         plt.subplot(2,4,1)
+#         plt.imshow((x[i, :, :, :3]).astype(np.uint8)) # RGB image
+#         plt.title('x')
 
-        plt.subplot(2,4,2)
-        plt.imshow((x[i, :, :, 3] * 127).astype(np.int8), cmap='gray')
-        plt.title('dvs+')
+#         plt.subplot(2,4,2)
+#         plt.imshow((x[i, :, :, 3] * 127).astype(np.int8), cmap='gray')
+#         plt.title('dvs+')
 
-        plt.subplot(2,4,3)
-        plt.imshow((x[i, :, :, 4] * 127).astype(np.int8), cmap='gray')
-        plt.title('dvs-')
+#         plt.subplot(2,4,3)
+#         plt.imshow((x[i, :, :, 4] * 127).astype(np.int8), cmap='gray')
+#         plt.title('dvs-')
 
-        plt.subplot(2,4,4)
-        plt.imshow((x[i, :, :, 5] * 127).astype(np.int8), cmap='gray')
-        plt.title('dvs+mean')
+#         plt.subplot(2,4,4)
+#         plt.imshow((x[i, :, :, 5] * 127).astype(np.int8), cmap='gray')
+#         plt.title('dvs+mean')
 
-        plt.subplot(2,4,5)
-        plt.imshow((x[i, :, :, 6] * 255).astype(np.int8), cmap='gray')
-        plt.title('dvs-std')
+#         plt.subplot(2,4,5)
+#         plt.imshow((x[i, :, :, 6] * 255).astype(np.int8), cmap='gray')
+#         plt.title('dvs-std')
 
-        plt.subplot(2,4,6)
-        plt.imshow((x[i, :, :, 7] * 127).astype(np.int8), cmap='gray')
-        plt.title('dvs+std')
+#         plt.subplot(2,4,6)
+#         plt.imshow((x[i, :, :, 7] * 127).astype(np.int8), cmap='gray')
+#         plt.title('dvs+std')
 
-        plt.subplot(2,4,7)
-        plt.imshow((x[i, :, :, 8] * 255).astype(np.int8), cmap='gray')
-        plt.title('dvs-std')
+#         plt.subplot(2,4,7)
+#         plt.imshow((x[i, :, :, 8] * 255).astype(np.int8), cmap='gray')
+#         plt.title('dvs-std')
 
-        plt.subplot(2,4,8)
-        # Converting back to label encoding for visualization
-        y_label_encoded = np.argmax(y, axis=-1)  # original labels ranging from 0 to 24
-        # visualize one of these label-encoded images with a color gradient
-        plt.imshow(y_label_encoded[0], cmap='viridis')  # Change the index as needed
-        plt.colorbar()  #colorbar on the side representing class labels
-        plt.title('y')
-        # plt.imshow((np.argmax(y, 3)[i, :, :] * 35).astype(np.uint8), cmap='gray')
+#         plt.subplot(2,4,8)
+#         # Converting back to label encoding for visualization
+#         y_label_encoded = np.argmax(y, axis=-1)  # original labels ranging from 0 to 24
+#         # visualize one of these label-encoded images with a color gradient
+#         plt.imshow(y_label_encoded[0], cmap='viridis')  # Change the index as needed
+#         plt.colorbar()  #colorbar on the side representing class labels
+#         plt.title('y')
+#         # plt.imshow((np.argmax(y, 3)[i, :, :] * 35).astype(np.uint8), cmap='gray')
 
-        plt.figure()
-        plt.imshow((mask[i, :, :] * 255).astype(np.uint8), cmap='gray')
-        plt.title('mask')
+#         plt.figure()
+#         plt.imshow((mask[i, :, :] * 255).astype(np.uint8), cmap='gray')
+#         plt.title('mask')
         
-        plt.show()
+#         plt.show()
 
 
     # x, y, mask = loader.get_batch(size=3, train=False)
