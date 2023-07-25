@@ -63,7 +63,7 @@ def train(loader, model, epochs=15, batch_size=8, show_loss=True, augmenter=None
                 y_, aux_y_ = model(x, training=True, aux_loss=True)  # get output of the model
 
                 # Debug: print prediction
-                # loader.batchex_printer(x,y_,mask, predicted=True)
+                loader.batchex_printer(x,y_,mask, predicted=True)
 
                 # debugging: ground truth loss should be 0
                 y = tf.cast(y, tf.float32)
@@ -136,7 +136,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset", help="Dataset path", default='dataset')
     parser.add_argument("--model_path", help="Model path", default='weights/model-evimo')
-    parser.add_argument("--n_classes", help="number of classes to classify", default=28)
+    parser.add_argument("--n_classes", help="number of classes to classify", default=14)
     parser.add_argument("--batch_size", help="batch size", default=8)
     parser.add_argument("--epochs", help="number of epochs to train", default=50)
     parser.add_argument("--width", help="number of epochs to train", default=640)
@@ -145,7 +145,7 @@ if __name__ == "__main__":
     parser.add_argument("--n_gpu", help="number of the gpu", default=0)
     parser.add_argument("--r_samples", help="ratio of training samples used", default=1)
     parser.add_argument("--problem_type", help="segmentation or edges", default='edges')
-    parser.add_argument("--evaluation", help="eveluate after every epoch?", action='store_true')
+    parser.add_argument("--evaluation", help="evaluate after every epoch?", action='store_true')
     parser.add_argument("--total_channels", help="num of total channels in inputs", default=6)
     parser.add_argument("--rgb_channels", help="specify num of RGB channels in inputs", default=0)
     args = parser.parse_args()
@@ -168,7 +168,7 @@ if __name__ == "__main__":
     r_samples = float(args.r_samples)
     problemType = args.problem_type
 
-    channels = args.event_channels # input of 6 channels
+    channels = args.total_channels # input of 6 channels
     channels_image = args.rgb_channels
     channels_events = channels - channels_image
     folder_best_model = args.model_path

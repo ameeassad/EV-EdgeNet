@@ -17,7 +17,7 @@ class Loader:
                  width=224, 
                  height=224, 
                  channels=3, 
-                 n_classes=21, 
+                 n_classes=14, 
                  problemType='segmentation',
                  median_frequency=0, 
                  other=False, 
@@ -240,6 +240,7 @@ class Loader:
             img = np.fliplr(img)
             
             label = np.load(random_labels[index])
+            label = self.evimo_label_processor(label)
 
             if self.problemType=="edges":
                 unique_labels = np.unique(label)
@@ -434,6 +435,52 @@ class Loader:
         - subir o bajar algo el valor de cualquier canal
         '''
         return event_image
+
+    def evimo_label_processor(self, label_img):
+        if self.n_classes != 14:
+            return label_img
+        # print("Using 14 class labels")
+        # print("Before mapping:", np.unique(label_img))
+        mapping = {
+            0: 0,
+            1: 0,
+            2: 0,
+            3: 0,
+            4: 0,
+            5: 1,
+            6: 2,
+            7: 0, # not sure what it is
+            8: 3,
+            9: 4,
+            10: 5,
+            11: 6,
+            12: 7,
+            13: 8,
+            14: 9,
+            15: 9,
+            16: 0, # not sure what it is
+            17: 10,
+            18: 10,
+            19: 10,
+            20: 10,
+            21: 0,  # not sure what it is
+            22: 11,
+            23: 12,
+            24: 13,
+            25: 14,
+            26: 14,
+            27: 14,
+            28: 14
+        }
+        # Vectorize the mapping function
+        vectorized_mapping = np.vectorize(mapping.get)
+
+        # Apply the mapping to the label img
+        new_labels = vectorized_mapping(label_img)
+        # print("after mapping:", np.unique(new_labels))
+
+        return new_labels
+
 
     def batchex_printer(self, x, y, mask, rgb= False, predicted=False):
         if rgb:
