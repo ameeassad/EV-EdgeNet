@@ -168,8 +168,8 @@ if __name__ == "__main__":
     r_samples = float(args.r_samples)
     problemType = args.problem_type
 
-    channels = args.total_channels # input of 6 channels
-    channels_image = args.rgb_channels
+    channels = int(args.total_channels) # input of 6 channels
+    channels_image = int(args.rgb_channels)
     channels_events = channels - channels_image
     folder_best_model = args.model_path
     name_best_model = os.path.join(folder_best_model,'best')
