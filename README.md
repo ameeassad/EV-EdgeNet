@@ -75,6 +75,9 @@ First, get the pre-processed EVIMO2 datasets
 4. Make sure the split names are ‘train’ and ‘test’ (not ‘eval’)
 
 ## Next, run the training
+
+Download the weights and place them into the main directory. Link -->  https://tubcloud.tu-berlin.de/s/9SR8ZW3YrmCgYy6 
+
 1. For edge training on event data, run `python train_evimo.py  --dataset ../datasets/processed-fixed --batch_size 8  --epochs 200 --problem_type edges`
 2. For segmentation training on event data, run `python train_evimo.py  --dataset ../datasets/processed-fixed --batch_size 8  --epochs 200 --problem_type segmentation`
 3. For RGB training only, you can add the parameters --total_channels 3 --rgb_channels 3
