@@ -1,1 +1,3 @@
 images_out/
+weights/
+temp_predicted_output.png
